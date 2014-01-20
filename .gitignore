@@ -1,0 +1,7 @@
+target/*
+.settings/*
+nb-configuration.xml
+velocity.log
+.springBeans
+.project
+.classpath
