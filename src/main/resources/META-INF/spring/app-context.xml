@@ -38,7 +38,7 @@
     </bean>
     
     <bean id="contextProcessor" class="by.creepid.docsreporter.context.DocContextProcessor"
-          scope="prototype">
+          scope="prototype" lazy-init="true">
         <property name="emptyField">
             <value>_________</value>
         </property>
@@ -46,5 +46,9 @@
 
     <bean id="docReportFactory" class="by.creepid.docsreporter.context.DocReportFactory"
           scope="singleton" depends-on="templateEngineKind"/>
+    
+    <bean id="contextFactory" class="by.creepid.docsreporter.context.ContextFactory">
+        <lookup-method name="getContextProcessor" bean="contextProcessor"/>
+    </bean>
 
 </beans>

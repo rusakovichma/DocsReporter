@@ -1,8 +1,6 @@
 package by.creepid.docsreporter;
 
-import by.creepid.docsreporter.context.ContextAdvice;
-import by.creepid.docsreporter.context.ContextMatcherPointcut;
-import by.creepid.docsreporter.context.ContextProcessor;
+import by.creepid.docsreporter.context.ContextFactory;
 import by.creepid.docsreporter.context.DocReportFactory;
 import by.creepid.docsreporter.converter.DocConverter;
 import by.creepid.docsreporter.converter.DocFormat;
@@ -21,19 +19,15 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
-import org.springframework.aop.Advisor;
-import org.springframework.aop.Pointcut;
-import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
-public abstract class DocReportBuilder implements ReportBuilder {
+public class DocReportBuilder implements ReportBuilder {
 
     @Autowired
-    private ContextProcessor contextProcessor;
-    @Autowired
     private DocReportFactory docReportFactory;
+    @Autowired
+    private ContextFactory contextFactory;
     
     @Resource(name = "docConverters")
     private List<PoiDocConverter> docConverters;
@@ -46,37 +40,12 @@ public abstract class DocReportBuilder implements ReportBuilder {
 
     public void initContext() {
         docReport = docReportFactory.buildReport(templatePath);
-        try {
-
-            context = getProxy(docReport.createContext());
-        } catch (XDocReportException ex) {
-            Logger.getLogger(DocReportBuilder.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        }
+        context = contextFactory.buildContext(docReport);
 
         templateExt = getFormat(templatePath);
         if (templateExt == UNSUPPORTED) {
             throw new IllegalStateException("Given template format is not supported!");
         }
-    }
-
-    private IContext getProxy(IContext context) {
-        Pointcut pc = new ContextMatcherPointcut();
-        ContextAdvice advice = new ContextAdvice(context, contextProcessor);
-        Advisor advisor = new DefaultPointcutAdvisor(pc, advice);
-
-        ProxyFactory pf = new ProxyFactory();
-
-        //for interfaces
-        pf.setOptimize(true);
-
-        pf.addAdvisor(advisor);
-        pf.setTarget(context);
-
-        //advise will not be changed
-        pf.setFrozen(true);
-
-        return (IContext) pf.getProxy();
     }
 
     private void clearSAXDriverProperty() {
@@ -150,5 +119,7 @@ public abstract class DocReportBuilder implements ReportBuilder {
         this.docConverters = docConverters;
     }
 
-    public abstract ContextProcessor getContextProcessor();
+    public void setContextFactory(ContextFactory contextFactory) {
+        this.contextFactory = contextFactory;
+    }
 }

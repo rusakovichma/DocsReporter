@@ -7,7 +7,6 @@
         
     <bean id="reportBuilder" class="by.creepid.docsreporter.DocReportBuilder"
           scope="singleton" lazy-init="true" depends-on="docConverters" init-method="initContext">
-        <lookup-method name="getContextProcessor" bean="contextProcessor"/>
         <property name="templatePath">
             <value>src/test/resources/DocxProjectWithVelocity.docx</value>
         </property>

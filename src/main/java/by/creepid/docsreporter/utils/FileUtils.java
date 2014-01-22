@@ -16,6 +16,8 @@ import java.io.OutputStream;
  */
 public final class FileUtils {
 
+    private static final String TEMP_FOLDER_PROP = "java.io.tmpdir";
+
     private FileUtils() {
     }
 
@@ -36,4 +38,7 @@ public final class FileUtils {
         return new FileOutputStream(outFile);
     }
 
+    public static String getTempFolderPath() {
+        return System.getProperty(TEMP_FOLDER_PROP);
+    }
 }

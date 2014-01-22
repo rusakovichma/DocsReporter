@@ -8,7 +8,7 @@ import java.util.Locale;
 
 public class DecimalDocTypesFormatter implements DocTypesFormatter<BigDecimal, String> {
 
-    private static DecimalFormat formatter;
+    private static final DecimalFormat formatter;
 
     static {
         Locale locale = Locale.getDefault();
