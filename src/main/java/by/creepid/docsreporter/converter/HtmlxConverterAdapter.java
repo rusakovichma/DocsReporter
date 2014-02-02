@@ -15,9 +15,9 @@ import org.springframework.stereotype.Component;
  * @param <HTMLXOptions>
  */
 @Component
-public class HtmlxDocConverter<DOCX, HTMLX> extends PoiDocConverter {
+public class HtmlxConverterAdapter<DOCX, HTMLX> extends PoiConverterAdapter {
 
-    public HtmlxDocConverter() {
+    public HtmlxConverterAdapter() {
         super(XHTMLConverter.getInstance());
     }
 

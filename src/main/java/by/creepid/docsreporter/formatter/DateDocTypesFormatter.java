@@ -2,17 +2,36 @@ package by.creepid.docsreporter.formatter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class DateDocTypesFormatter implements DocTypesFormatter<Date, String> {
 
-    private static final SimpleDateFormat DATE_FORMAT;
+    private static final String DEFAULT_DATE_PATTERN;
+    private String datePattern = DEFAULT_DATE_PATTERN;
+    
+    private SimpleDateFormat dateFormat;
 
     static {
-        DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy");
+        DEFAULT_DATE_PATTERN = "dd.MM.yyyy";
+    }
+
+    public String getDatePattern() {
+        return datePattern;
+    }
+
+    @Autowired(required = false)
+    public void setDatePattern(String datePattern) {
+        this.datePattern = datePattern;
+    }
+
+    @PostConstruct
+    public void init() {
+        dateFormat = new SimpleDateFormat(datePattern);
     }
 
     public synchronized String format(Date f) {
-        return DATE_FORMAT.format(f);
+        return dateFormat.format(f);
     }
 
     public Class<String> getToClass() {
@@ -22,5 +41,4 @@ public class DateDocTypesFormatter implements DocTypesFormatter<Date, String> {
     public Class<Date> getFromClass() {
         return Date.class;
     }
-
 }

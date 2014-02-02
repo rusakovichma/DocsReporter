@@ -14,6 +14,7 @@
     ]]>
     </description>
     <properties>
+        <xdocreport.version>1.0.3</xdocreport.version>
         <maven.test.failure.ignore>true</maven.test.failure.ignore>
         <spring.framework.version>3.0.6.RELEASE</spring.framework.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -45,41 +46,56 @@
 
         <dependency>
             <scope>compile</scope>
-            <groupId>fr.opensagres</groupId>
+            <groupId>fr.opensagres.xdocreport</groupId>
             <artifactId>fr.opensagres.xdocreport.template</artifactId>
-            <version>0.9.0</version>
+            <version>${xdocreport.version}</version>
         </dependency>
+        
         <dependency>
             <scope>compile</scope>
-            <groupId>fr.opensagres</groupId>
+            <groupId>fr.opensagres.xdocreport</groupId>
             <artifactId>fr.opensagres.xdocreport.document</artifactId>
-            <version>0.9.0</version>
+            <version>${xdocreport.version}</version>
         </dependency>
+        
         <dependency>
             <scope>compile</scope>
-            <groupId>fr.opensagres</groupId>
+            <groupId>fr.opensagres.xdocreport</groupId>
             <artifactId>fr.opensagres.xdocreport.core</artifactId>
-            <version>0.9.0</version>
+            <version>${xdocreport.version}</version>
         </dependency>
+        
         <dependency>
             <scope>compile</scope>
-            <groupId>fr.opensagres</groupId>
+            <groupId>fr.opensagres.xdocreport</groupId>
             <artifactId>fr.opensagres.xdocreport.converter</artifactId>
-            <version>0.9.0</version>
+            <version>${xdocreport.version}</version>
         </dependency>
         
         
         <dependency>
-            <groupId>fr.opensagres</groupId>
+            <groupId>fr.opensagres.xdocreport</groupId>
             <artifactId>fr.opensagres.xdocreport.document.docx</artifactId>
-            <version>0.9.0</version>
+            <version>${xdocreport.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.document.pptx</artifactId>
+            <version>${xdocreport.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.document.odt</artifactId>
+            <version>${xdocreport.version}</version>
         </dependency>
 
         <dependency>
             <scope>compile</scope>
-            <groupId>fr.opensagres</groupId>
+            <groupId>fr.opensagres.xdocreport</groupId>
             <artifactId>fr.opensagres.xdocreport.template.velocity</artifactId>
-            <version>0.9.0</version>
+            <version>${xdocreport.version}</version>
         </dependency>
 
         <dependency>
@@ -178,6 +194,15 @@
     </dependencies>
 	
     <repositories>
+        <repository>
+            <id>central</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
         <repository>
             <id>releases</id>
             <name>Releases</name>

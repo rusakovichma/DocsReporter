@@ -12,10 +12,12 @@ package by.creepid.docsreporter.converter;
 public enum DocFormat {
 
     DOCX("application/vnd.openxmlformats-officedocument.wordprocessingml.document", new String[]{"docx"}),
+    PPTX("application/vnd.openxmlformats-officedocument.presentationml.presentation", new String[]{"pptx"}),
     PDF("application/pdf", new String[]{"pdf"}),
+    ODT("application/vnd.oasis.opendocument.text", new String[]{"odt"}),
     XHTML("application/xhtml+xml", new String[]{"htm", "html", "xhtml"}),
     UNSUPPORTED("text/html", new String[]{""});
-
+    
     private final String mimeType;
     private final String[] exts;
 
@@ -84,6 +86,4 @@ public enum DocFormat {
 
         return UNSUPPORTED;
     }
-
-    
 }

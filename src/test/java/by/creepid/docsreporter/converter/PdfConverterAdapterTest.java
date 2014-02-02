@@ -5,6 +5,11 @@
  */
 package by.creepid.docsreporter.converter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -18,12 +23,14 @@ import static org.junit.Assert.*;
  *
  * @author rusakovich
  */
-public class PdfDocConverterTest {
+public class PdfConverterAdapterTest {
 
-    private DocConverter converter;
+    private static final String inPath = "src/test/resources/DocxProjectWithVelocity.docx";
+    private static final String outPath = "src/test/resources/DocxProjectWithVelocity.pdf";
+    private DocConverterAdapter converter;
 
-    public PdfDocConverterTest() {
-        converter = new PdfDocConverter();
+    public PdfConverterAdapterTest() {
+        converter = new PdfConverterAdapter();
     }
 
     @BeforeClass
@@ -47,10 +54,14 @@ public class PdfDocConverterTest {
         System.out.println(converter.getSourceFormat());
         System.out.println(converter.getTargetFormat());
         try {
-            converter.convert("src/test/resources/DocxProjectWithVelocity.docx", "src/test/resources/DocxProjectWithVelocity.pdf");
+            InputStream in = new FileInputStream(new File(inPath));
+            ByteArrayOutputStream out = (ByteArrayOutputStream) converter.convert(DocFormat.getFormat(outPath), in);
+
+            FileOutputStream newOut = new FileOutputStream(new File(outPath));
+            out.writeTo(newOut);
+
         } catch (Exception ex) {
-            Logger.getLogger(PdfDocConverterTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PdfConverterAdapterTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
 }

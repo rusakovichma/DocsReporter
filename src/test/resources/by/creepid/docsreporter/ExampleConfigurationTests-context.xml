@@ -5,11 +5,13 @@
 
     <import resource="classpath:/META-INF/spring/app-context.xml"/> 
         
-    <bean id="reportBuilder" class="by.creepid.docsreporter.DocReportBuilder"
-          scope="singleton" lazy-init="true" depends-on="docConverters" init-method="initContext">
+    <bean id="reportTemplate" parent="reportTemplateBase">
         <property name="templatePath">
             <value>src/test/resources/DocxProjectWithVelocity.docx</value>
         </property>
+        <property name="modelClass">
+            <value>by.creepid.docsreporter.Project</value>
+        </property> 
     </bean>
 
 </beans>

@@ -5,8 +5,7 @@
  */
 package by.creepid.docsreporter.converter;
 
-import by.creepid.docsreporter.utils.FileUtils;
-import java.io.FileInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,46 +17,42 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
  *
  * @author rusakovich
  */
-public abstract class PoiDocConverter<S extends DocFormat, E extends DocFormat>
-        implements DocConverter {
+public abstract class PoiConverterAdapter<S extends DocFormat, E extends DocFormat>
+        implements DocConverterAdapter {
 
     protected final IXWPFConverter converter;
     protected E format;
 
-    PoiDocConverter(IXWPFConverter converter) {
+    PoiConverterAdapter(IXWPFConverter converter) {
         this.converter = converter;
     }
 
-    private XWPFDocument createDocument(String docPath)
+    private XWPFDocument createDocument(InputStream in)
             throws IOException {
-        InputStream in = new FileInputStream(docPath);
         return new XWPFDocument(in);
     }
 
-    public void convert(String sourcePath, String targetPath, Options options)
+    public OutputStream convert(DocFormat targetFormat, InputStream in, Options options)
             throws IOException {
-        if (DocFormat.getFormat(sourcePath) != getSourceFormat()) {
+        if (targetFormat != getTargetFormat()) {
             throw new IllegalArgumentException(
-                    "Source must have " + getSourceFormat().getExts()[0] + " extension!");
-        }
-        
-        if (DocFormat.getFormat(targetPath) != getTargetFormat()) {
-            throw new IllegalArgumentException(
-                    "Target must have " + getTargetFormat().getExtsString(" or ") + " extension!");
+                    "Target must have " + getTargetFormat().getExts()[0] + " extension!");
         }
 
-        XWPFDocument doc = createDocument(sourcePath);
-        OutputStream out = FileUtils.getOutputStream(targetPath);
+        XWPFDocument doc = createDocument(in);
+        OutputStream out = new ByteArrayOutputStream();
 
         synchronized (converter) {
             converter.convert(doc, out, options);
         }
+
+        return out;
     }
 
     @Override
-    public void convert(String sourcePath, String targetPath)
+    public OutputStream convert(DocFormat inFormat, InputStream in)
             throws IOException {
-        convert(sourcePath, targetPath, null);
+        return convert(inFormat, in, null);
     }
 
     @Override

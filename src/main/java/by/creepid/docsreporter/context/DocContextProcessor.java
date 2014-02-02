@@ -1,5 +1,6 @@
 package by.creepid.docsreporter.context;
 
+import by.creepid.docsreporter.context.annotations.ImageField;
 import java.lang.reflect.Field;
 
 import org.apache.log4j.Level;
@@ -8,11 +9,16 @@ import org.springframework.stereotype.Component;
 
 import by.creepid.docsreporter.formatter.DocTypesFormatter;
 import by.creepid.docsreporter.utils.ClassUtil;
+import by.creepid.docsreporter.utils.FieldHelper;
 import by.creepid.docsreporter.utils.SimpleTypes;
+import fr.opensagres.xdocreport.document.images.ByteArrayImageProvider;
+import fr.opensagres.xdocreport.document.images.IImageProvider;
 import fr.opensagres.xdocreport.template.IContext;
+import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Resource;
-import org.springframework.util.ClassUtils;
 
 @Component
 public class DocContextProcessor implements ContextProcessor {
@@ -21,6 +27,7 @@ public class DocContextProcessor implements ContextProcessor {
     private List<DocTypesFormatter> formatters;
     private String emptyField;
     private IContext context = null;
+    private static final Class<? extends Annotation> imageAnnotatioin = ImageField.class;
 
     private void checkContext() {
         if (context == null) {
@@ -32,25 +39,6 @@ public class DocContextProcessor implements ContextProcessor {
         checkContext();
 
         return context.get(key);
-    }
-
-    protected String setFirstCharUpper(String fieldname) {
-        StringBuilder builder = new StringBuilder(fieldname);
-
-        String firstUpper = fieldname.substring(0, 1).toUpperCase();
-
-        builder = builder.deleteCharAt(0);
-        builder.insert(0, firstUpper);
-
-        return builder.toString();
-    }
-
-    protected String getContextFieldName(String context, String field) {
-        StringBuilder contextField = new StringBuilder(context)
-                .append(".")
-                .append(setFirstCharUpper(field));
-
-        return contextField.toString();
     }
 
     private DocTypesFormatter getFormatter(Class<?> classTo) {
@@ -79,21 +67,31 @@ public class DocContextProcessor implements ContextProcessor {
         return fieldObj.toString();
     }
 
-    private void processObjectFields(String contextStr, Object obj) {
+    private void processImage(String imageMark, byte[] image, Annotation imageAnnotatioin) {
+        IImageProvider imageProvider = new ByteArrayImageProvider(image, false);
+        context.put(imageMark, imageProvider);
+    }
+
+    protected void processObjectFields(String contextStr, Object obj) {
 
         if (obj != null) {
             Class<?> clazz = obj.getClass();
-            Field[] fields = ClassUtil.getDeclaredFields(clazz, true);
+            Field[] fields = FieldHelper.getDeclaredFields(clazz, true);
 
             for (Field field : fields) {
                 try {
                     field.setAccessible(true);
 
                     Object fieldObj = field.get(obj);
-                    String contextFieldname = getContextFieldName(
+                    String contextFieldname = FieldHelper.getFieldHierarchyPath(
                             contextStr, field.getName());
 
-                    this.put(contextFieldname, fieldObj);
+                    if (field.isAnnotationPresent(imageAnnotatioin)) {
+                        processImage(contextFieldname, (byte[]) fieldObj,
+                                field.getAnnotation(imageAnnotatioin));
+                    } else {
+                        this.put(contextFieldname, fieldObj);
+                    }
 
                 } catch (SecurityException | IllegalArgumentException | IllegalAccessException ex) {
                     Logger.getLogger(DocContextProcessor.class.getName()).log(
@@ -104,7 +102,7 @@ public class DocContextProcessor implements ContextProcessor {
         }
     }
 
-    private void processSimpleType(String string, Object obj) {
+    protected void processSimpleType(String string, Object obj) {
 
         String value = (obj != null)
                 ? getString(obj)
@@ -113,11 +111,17 @@ public class DocContextProcessor implements ContextProcessor {
         context.put(string, value);
     }
 
+    protected void processCollection(String string, Object obj) {
+        context.put(string, obj);
+    }
+
     public Object put(String string, Object obj) {
         checkContext();
 
         if (obj == null || SimpleTypes.isSimple(obj.getClass())) {
             processSimpleType(string, obj);
+        } else if (obj instanceof Collection) {
+            processCollection(string, obj);
         } else {
             processObjectFields(string, obj);
         }
@@ -136,5 +140,13 @@ public class DocContextProcessor implements ContextProcessor {
 
     public void setEmptyField(String emptyField) {
         this.emptyField = emptyField;
+    }
+
+    public void putMap(Map<String, Object> map) {
+        context.putMap(map);
+    }
+
+    public Map<String, Object> getContextMap() {
+        return context.getContextMap();
     }
 }

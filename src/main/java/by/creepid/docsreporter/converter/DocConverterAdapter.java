@@ -5,15 +5,18 @@
  */
 package by.creepid.docsreporter.converter;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+
 /**
  *
  * @author rusakovich
  * @param <S>
  * @param <E>
  */
-public interface DocConverter<S extends DocFormat, E extends DocFormat> {
+public interface DocConverterAdapter<S extends DocFormat, E extends DocFormat> {
 
-    public void convert(String sourcePath, String targetPath)
+    public OutputStream convert(DocFormat sourceFormat, InputStream in)
             throws Exception;
 
     public E getTargetFormat();

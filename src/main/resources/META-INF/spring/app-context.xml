@@ -23,11 +23,11 @@
         <ref local="decimalFormatter"/>
     </util:list>
     
-    <bean id="pdfDocConverter" class="by.creepid.docsreporter.converter.PdfDocConverter"/>
-    <bean id="htmlxDocConverter" class="by.creepid.docsreporter.converter.HtmlxDocConverter"/>
+    <bean id="pdfConverterAdapter" class="by.creepid.docsreporter.converter.PdfConverterAdapter"/>
+    <bean id="htmlxConverterAdapter" class="by.creepid.docsreporter.converter.HtmlxConverterAdapter"/>
     <util:list id="docConverters">
-        <ref local="pdfDocConverter"/>
-        <ref local="htmlxDocConverter"/>
+        <ref local="pdfConverterAdapter"/>
+        <ref local="htmlxConverterAdapter"/>
     </util:list>
        
     <bean id="templateEngineKind" class="fr.opensagres.xdocreport.template.TemplateEngineKind"
@@ -35,6 +35,17 @@
         <constructor-arg>
             <value>Velocity</value>
         </constructor-arg>
+    </bean>
+    
+    <bean id="metadataExtractor" class="by.creepid.docsreporter.context.meta.FieldsMetadataExtractorImpl">
+        <property name="behaviour">
+            <bean class="fr.opensagres.xdocreport.template.formatter.NullImageBehaviour"
+                  factory-method="valueOf">
+                <constructor-arg>
+                    <value>KeepImageTemplate</value>
+                </constructor-arg>
+            </bean>
+        </property>
     </bean>
     
     <bean id="contextProcessor" class="by.creepid.docsreporter.context.DocContextProcessor"
@@ -49,6 +60,10 @@
     
     <bean id="contextFactory" class="by.creepid.docsreporter.context.ContextFactory">
         <lookup-method name="getContextProcessor" bean="contextProcessor"/>
+    </bean>
+    
+    <bean id="reportTemplateBase" abstract="true" class="by.creepid.docsreporter.DocReportTemplate"
+          scope="singleton" lazy-init="true" depends-on="docConverters" init-method="initContext">
     </bean>
 
 </beans>

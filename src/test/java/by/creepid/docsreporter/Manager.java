@@ -4,6 +4,7 @@
  */
 package by.creepid.docsreporter;
 
+import by.creepid.docsreporter.context.annotations.ImageField;
 import java.util.Date;
 
 /**
@@ -16,6 +17,8 @@ public class Manager {
     private String lastName;
     private int yearsExperience;
     private Date birthDate;
+    @ImageField(bookmarks={"photo"})
+    private byte[] photo;
 
     public Manager(String firstName, String lastName, int yearsExperience) {
         this.firstName = firstName;
@@ -53,5 +56,13 @@ public class Manager {
 
     public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public byte[] getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
     }
 }

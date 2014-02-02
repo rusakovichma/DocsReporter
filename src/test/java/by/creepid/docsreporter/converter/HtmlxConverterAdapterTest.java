@@ -5,6 +5,12 @@
  */
 package by.creepid.docsreporter.converter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -12,18 +18,19 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
  * @author rusakovich
  */
-public class HtmlxDocConverterTest {
+public class HtmlxConverterAdapterTest {
 
-    private DocConverter converter;
+    private static final String inPath = "src/test/resources/DocxProjectWithVelocity.docx";
+    private static final String outPath = "src/test/resources/DocxProjectWithVelocity.htm";
+    private DocConverterAdapter converter;
 
-    public HtmlxDocConverterTest() {
-        converter = new HtmlxDocConverter();
+    public HtmlxConverterAdapterTest() {
+        converter = new HtmlxConverterAdapter();
     }
 
     @BeforeClass
@@ -50,10 +57,14 @@ public class HtmlxDocConverterTest {
         System.out.println(converter.getSourceFormat());
         System.out.println(converter.getTargetFormat());
         try {
-            converter.convert("src/test/resources/DocxProjectWithVelocity.docx", "src/test/resources/DocxProjectWithVelocity.htm");
+            InputStream in = new FileInputStream(new File(inPath));
+            ByteArrayOutputStream out = (ByteArrayOutputStream) converter.convert(DocFormat.getFormat(outPath), in);
+
+            FileOutputStream newOut = new FileOutputStream(new File(outPath));
+            out.writeTo(newOut);
+
         } catch (Exception ex) {
-            Logger.getLogger(PdfDocConverterTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PdfConverterAdapterTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
 }

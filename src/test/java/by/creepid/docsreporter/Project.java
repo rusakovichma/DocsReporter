@@ -1,7 +1,12 @@
 package by.creepid.docsreporter;
 
+import by.creepid.docsreporter.context.annotations.ImageField;
+import by.creepid.docsreporter.utils.ClassUtil;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 public class Project {
 
@@ -11,11 +16,16 @@ public class Project {
     private String author = null;
     private int stuffSize;
     private Manager manager;
+    private List<DeveloperWithPhoto> developers;
+    @ImageField(bookmarks={"logo"})
+    private byte[] logo;
 
     public Project() {
+        developers = new ArrayList<>();
     }
 
     public Project(String name, Date date, BigDecimal price) {
+        this();
         this.name = name;
         this.date = date;
         this.price = price;
@@ -67,5 +77,25 @@ public class Project {
 
     public void setManager(Manager manager) {
         this.manager = manager;
+    }
+
+    public List<DeveloperWithPhoto> getDevelopers() {
+        return developers;
+    }
+
+    public void setDevelopers(List<DeveloperWithPhoto> developers) {
+        this.developers = developers;
+    }
+
+    public void add(DeveloperWithPhoto developer) {
+        developers.add(developer);
+    }
+
+    public byte[] getLogo() {
+        return logo;
+    }
+
+    public void setLogo(byte[] logo) {
+        this.logo = logo;
     }
 }

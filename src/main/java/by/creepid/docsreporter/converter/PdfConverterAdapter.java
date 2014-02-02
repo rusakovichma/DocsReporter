@@ -15,9 +15,9 @@ import org.springframework.stereotype.Component;
  * @param <PDF>
  */
 @Component
-public class PdfDocConverter<DOCX, PDF> extends PoiDocConverter {
+public class PdfConverterAdapter<DOCX, PDF> extends PoiConverterAdapter {
 
-    public PdfDocConverter() {
+    public PdfConverterAdapter() {
         super(PdfConverter.getInstance());
     }
 
