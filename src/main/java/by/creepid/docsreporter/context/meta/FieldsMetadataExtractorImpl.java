@@ -50,7 +50,6 @@ public class FieldsMetadataExtractorImpl implements FieldsMetadataExtractor {
 
         Field[] fields = FieldHelper.getAnnotatedTypeArgumentFields(modelClass, Collection.class, imageAnnotation, true);
         for (Field field : fields) {
-
             String name = field.getName();
             if (field.getType() != byte[].class) {
                 throw new IllegalStateException("Image field [" + name + "] must have byte array type!");
@@ -70,10 +69,10 @@ public class FieldsMetadataExtractorImpl implements FieldsMetadataExtractor {
 
                     String[] bookmarks = imageAnnot.bookmarks();
                     for (String bookmark : bookmarks) {
-
+                        
                         metadataToFill.addFieldAsImage(
                                 bookmark,
-                                FieldHelper.getFieldHierarchyPath(alias, field.getName()));
+                                FieldHelper.getFieldPath(alias, field.getName()));
                     }
                 }
             } else {
@@ -82,7 +81,7 @@ public class FieldsMetadataExtractorImpl implements FieldsMetadataExtractor {
 
                     metadataToFill.addFieldAsImage(
                             bookmark,
-                            FieldHelper.getFieldHierarchyPath(field.getDeclaringClass().getSimpleName(), field.getName()));
+                            FieldHelper.getFieldPath(field.getDeclaringClass().getSimpleName(), field.getName()));
                 }
             }
         }

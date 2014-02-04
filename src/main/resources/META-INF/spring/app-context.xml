@@ -65,5 +65,5 @@
     <bean id="reportTemplateBase" abstract="true" class="by.creepid.docsreporter.DocReportTemplate"
           scope="singleton" lazy-init="true" depends-on="docConverters" init-method="initContext">
     </bean>
-
+    
 </beans>

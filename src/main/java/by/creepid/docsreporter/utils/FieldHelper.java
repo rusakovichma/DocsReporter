@@ -6,7 +6,7 @@ package by.creepid.docsreporter.utils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,12 +16,63 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.ReflectionUtils.FieldCallback;
+import org.springframework.util.ReflectionUtils.FieldFilter;
 
 /**
  *
  * @author mirash
  */
 public class FieldHelper {
+
+    public static List<String> getFieldHierarchy(final Class<?> clazz, final String prefix) {
+        final List<String> rootHierarchy = new LinkedList<String>();
+
+        ReflectionUtils.doWithFields(clazz,
+                new FieldCallback() {
+
+                    @Override
+                    public void doWith(final Field field)
+                    throws IllegalArgumentException, IllegalAccessException {
+                        field.setAccessible(true);
+                        String fieldPath = getFieldPath(prefix, field.getName());
+                        rootHierarchy.add(fieldPath);
+
+                        if (!SimpleTypes.isSimple(field.getType())
+                        && !ClassUtils.isPrimitiveArray(field.getType())
+                        && !Collection.class.isAssignableFrom(field.getType())) {
+
+                            List<String> fieldHierarchy = getFieldHierarchy(field.getType(), fieldPath);
+                            rootHierarchy.addAll(fieldHierarchy);
+                        }
+
+                        if (Collection.class.isAssignableFrom(field.getType())
+                        && (field.getGenericType() != null)
+                        && (field.getGenericType() instanceof ParameterizedType)) {
+                            ParameterizedType collectionType = (ParameterizedType) field.getGenericType();
+                            Class<?> actualTypeArg = (Class<?>) collectionType.getActualTypeArguments()[0];
+
+                            List<String> genericHierarchy = getFieldHierarchy(actualTypeArg, getFieldPath(prefix, field.getName()));
+                            rootHierarchy.addAll(genericHierarchy);
+                        }
+
+                    }
+                },
+                new FieldFilter() {
+
+                    @Override
+                    public boolean matches(final Field field) {
+                        final int modifiers = field.getModifiers();
+                        // no static fields please
+                        return !Modifier.isStatic(modifiers)
+                        && !Modifier.isTransient(modifiers)
+                        && !Modifier.isAbstract(modifiers);
+                    }
+                });
+
+        return rootHierarchy;
+    }
 
     /**
      * Retrieving fields list of specified class If recursively is true,
@@ -96,7 +147,7 @@ public class FieldHelper {
             if (field.isAnnotationPresent(annotationClass)) {
 
                 annotatedFields.put(
-                        getFieldHierarchyPath(root, field.getName()),
+                        getFieldPath(root, field.getName()),
                         field);
             }
 
@@ -107,7 +158,7 @@ public class FieldHelper {
 
                 Map<String, Field> fieldMap = getAnnotatedDeclaredFields(
                         field.getType(),
-                        getFieldHierarchyPath(root, field.getName()),
+                        getFieldPath(root, field.getName()),
                         annotationClass, true);
 
                 annotatedFields.putAll(fieldMap);
@@ -117,7 +168,7 @@ public class FieldHelper {
         return annotatedFields;
     }
 
-    public static String getFieldHierarchyPath(String root, String fieldName) {
+    public static String getFieldPath(String root, String fieldName) {
         if (root == null || root.isEmpty()) {
             return StringsUtil.setFirstCharLower(fieldName);
         }

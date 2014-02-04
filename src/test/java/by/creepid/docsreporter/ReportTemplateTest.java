@@ -1,5 +1,6 @@
 package by.creepid.docsreporter;
 
+import by.creepid.docsreporter.context.validation.ReportProcessingException;
 import by.creepid.docsreporter.converter.DocFormat;
 import java.io.ByteArrayOutputStream;
 import static org.junit.Assert.fail;
@@ -14,6 +15,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,6 +25,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ObjectError;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("file:src/test/resources/by/creepid/docsreporter/ExampleConfigurationTests-context.xml")
@@ -86,22 +90,38 @@ public class ReportTemplateTest {
     }
 
     @Test
-    public final void testGenerateReport() throws Exception {
-        String docName = folder + "out_" + getTimestamp() + ext;
-        File file = new File(docName);
-        file.createNewFile();
-        OutputStream outFile = new FileOutputStream(file);
+    public final void testGenerateReport() throws IOException {
+        ByteArrayOutputStream out = null;
+        try {
+            String docName = folder + "out_" + getTimestamp() + ext;
 
-        ByteArrayOutputStream out = (ByteArrayOutputStream) reportTemplate.generateReport(DocFormat.getFormat(docName) , getProject());
+            out = (ByteArrayOutputStream) reportTemplate.generateReport(DocFormat.getFormat(docName), getProject());
+            File file = new File(docName);
+            file.createNewFile();
+            OutputStream outFile = new FileOutputStream(file);
 
-        out.writeTo(outFile);
+            out.writeTo(outFile);
+            if (!new File(docName).exists()) {
+                fail("Report not generated");
+            }
+            outFile.close();
 
-        if (!new File(docName).exists()) {
-            fail("Report not generated");
+        } catch (ReportProcessingException ex) {
+            System.out.println(ex.getMessage());
+            Errors errors = reportTemplate.getFieldErrors();
+            List<ObjectError> errorsList = errors.getAllErrors();
+            for (ObjectError objectError : errorsList) {
+                System.out.println(objectError.getDefaultMessage());
+                System.out.println(objectError.getCode());
+            }
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ReportTemplateTest.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-
-        outFile.close();
-        out.close();
-
     }
 }

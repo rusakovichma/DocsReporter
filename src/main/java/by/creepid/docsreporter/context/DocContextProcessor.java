@@ -83,7 +83,7 @@ public class DocContextProcessor implements ContextProcessor {
                     field.setAccessible(true);
 
                     Object fieldObj = field.get(obj);
-                    String contextFieldname = FieldHelper.getFieldHierarchyPath(
+                    String contextFieldname = FieldHelper.getFieldPath(
                             contextStr, field.getName());
 
                     if (field.isAnnotationPresent(imageAnnotatioin)) {

@@ -12,6 +12,14 @@
         <property name="modelClass">
             <value>by.creepid.docsreporter.Project</value>
         </property> 
+        <property name="modelName" value="project"/>
+        <property name="iteratorNames">
+            <map>
+                <entry key="developer">
+                    <value>by.creepid.docsreporter.DeveloperWithPhoto</value>
+                </entry>
+            </map>
+        </property>
     </bean>
 
 </beans>

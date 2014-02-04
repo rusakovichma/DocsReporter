@@ -13,7 +13,7 @@ import java.util.Date;
  */
 public class DeveloperWithPhoto extends Developer {
 
-    @ImageField(bookmarks={"photo", "photo2"})
+    @ImageField(bookmarks={"photo1", "photo2"})
     private byte[] photo;
 
     public DeveloperWithPhoto(String name, String lastName, String mail, Date birthDate, byte[] photo) {

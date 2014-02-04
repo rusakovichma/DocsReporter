@@ -9,6 +9,7 @@ import by.creepid.docsreporter.context.annotations.ImageField;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.After;
@@ -54,10 +55,10 @@ public class FieldHelperTest {
         Class<? extends Annotation> annotationClass = ImageField.class;
         boolean recursively = true;
         Field[] result = FieldHelper.getAnnotatedTypeArgumentFields(clazz, fieldType, annotationClass, recursively);
-        for (Field field : result) {
-            System.out.println(field.getDeclaringClass().getSimpleName());
-            System.out.println(field.getName());
-        }
+//        for (Field field : result) {
+//            System.out.println(field.getDeclaringClass().getSimpleName());
+//            System.out.println(field.getName());
+//        }
     }
 
     @Test
@@ -69,12 +70,23 @@ public class FieldHelperTest {
         boolean recursively = true;
         Map<String, Field> result = FieldHelper.getAnnotatedDeclaredFields(clazz, root, annotationClass, recursively);
         Set<String> str = result.keySet();
-        for (String string : str) {
+//        for (String string : str) {
+//            System.out.println(string);
+//        }
+    }
+
+    /**
+     * Test of getFieldHierarchy method, of class FieldHelper.
+     */
+    @Test
+    public void testGetFieldHierarchy() {
+        System.out.println("***** getFieldHierarchy *******");
+        Class clazz = Project.class;
+        String prefix = "project";
+        List<String> result = FieldHelper.getFieldHierarchy(clazz, prefix);
+        for (String string : result) {
             System.out.println(string);
         }
     }
 
-    
-
-    
 }
