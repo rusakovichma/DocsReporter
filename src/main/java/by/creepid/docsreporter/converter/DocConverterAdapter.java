@@ -23,4 +23,6 @@ public interface DocConverterAdapter<S extends DocFormat, E extends DocFormat> {
 
     public S getSourceFormat();
 
+    public ImageExtractor getImageExtractor();
+
 }

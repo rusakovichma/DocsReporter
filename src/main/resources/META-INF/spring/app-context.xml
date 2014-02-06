@@ -15,19 +15,22 @@
     <context:annotation-config />
     <context:component-scan base-package="by.creepid.docsreporter" />
 
-    <bean id="dateFormatter" class="by.creepid.docsreporter.formatter.DateDocTypesFormatter" />
-    <bean id="decimalFormatter"
-          class="by.creepid.docsreporter.formatter.DecimalDocTypesFormatter" />
     <util:list id="formatters">
-        <ref local="dateFormatter"/>
-        <ref local="decimalFormatter"/>
+        <bean class="by.creepid.docsreporter.formatter.DateDocTypesFormatter" />
+        <bean class="by.creepid.docsreporter.formatter.DecimalDocTypesFormatter" />
     </util:list>
     
-    <bean id="pdfConverterAdapter" class="by.creepid.docsreporter.converter.PdfConverterAdapter"/>
-    <bean id="htmlxConverterAdapter" class="by.creepid.docsreporter.converter.HtmlxConverterAdapter"/>
+    <bean id="imageExtractor" class="by.creepid.docsreporter.converter.ImageExtractorImpl"/>
+    
     <util:list id="docConverters">
-        <ref local="pdfConverterAdapter"/>
-        <ref local="htmlxConverterAdapter"/>
+        <bean class="by.creepid.docsreporter.converter.PoiXhtmlConverterAdapter">
+            <lookup-method name="createExctractor" bean="imageExtractor"/>
+        </bean>
+        <bean class="by.creepid.docsreporter.converter.PoiPdfConverterAdapter"/>
+        <bean class="by.creepid.docsreporter.converter.OdfXhtmlConverterAdapter">
+            <lookup-method name="createExctractor" bean="imageExtractor"/>
+        </bean>
+        <bean class="by.creepid.docsreporter.converter.OdfPdfConverterAdapter"/>
     </util:list>
        
     <bean id="templateEngineKind" class="fr.opensagres.xdocreport.template.TemplateEngineKind"

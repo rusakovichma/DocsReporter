@@ -7,7 +7,7 @@
         
     <bean id="reportTemplate" parent="reportTemplateBase">
         <property name="templatePath">
-            <value>src/test/resources/DocxProjectWithVelocity.docx</value>
+            <value>src/test/resources/DocxProjectWithVelocity.odt</value>
         </property>
         <property name="modelClass">
             <value>by.creepid.docsreporter.Project</value>

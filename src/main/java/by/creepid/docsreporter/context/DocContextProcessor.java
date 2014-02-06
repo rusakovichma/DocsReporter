@@ -73,7 +73,7 @@ public class DocContextProcessor implements ContextProcessor {
     }
 
     protected void processObjectFields(String contextStr, Object obj) {
-
+        
         if (obj != null) {
             Class<?> clazz = obj.getClass();
             Field[] fields = FieldHelper.getDeclaredFields(clazz, true);
@@ -103,7 +103,7 @@ public class DocContextProcessor implements ContextProcessor {
     }
 
     protected void processSimpleType(String string, Object obj) {
-
+        
         String value = (obj != null)
                 ? getString(obj)
                 : emptyField;
@@ -117,7 +117,7 @@ public class DocContextProcessor implements ContextProcessor {
 
     public Object put(String string, Object obj) {
         checkContext();
-
+        
         if (obj == null || SimpleTypes.isSimple(obj.getClass())) {
             processSimpleType(string, obj);
         } else if (obj instanceof Collection) {

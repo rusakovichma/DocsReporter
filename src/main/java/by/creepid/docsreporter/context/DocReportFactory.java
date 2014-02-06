@@ -65,4 +65,9 @@ public final class DocReportFactory {
     public void setTemplateEngineKind(TemplateEngineKind templateEngineKind) {
         this.templateEngineKind = templateEngineKind;
     }
+
+    public TemplateEngineKind getTemplateEngineKind() {
+        return templateEngineKind;
+    }
+
 }

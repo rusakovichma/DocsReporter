@@ -24,7 +24,6 @@ import java.util.Set;
  */
 public class FieldsMetadataExtractorImpl implements FieldsMetadataExtractor {
 
-    private static final String BOOKMARK_PATTERN = "^(?!\\d)\\w{1,40}$";
     private static final Class<? extends Annotation> imageAnnotation = ImageField.class;
     private static final NullImageBehaviour DEFAULT_BEHAVIOR = NullImageBehaviour.KeepImageTemplate;
     private NullImageBehaviour behaviour = DEFAULT_BEHAVIOR;
@@ -55,12 +54,6 @@ public class FieldsMetadataExtractorImpl implements FieldsMetadataExtractor {
                 throw new IllegalStateException("Image field [" + name + "] must have byte array type!");
             }
 
-
-            if (!name.matches(BOOKMARK_PATTERN)) {
-                throw new IllegalStateException(
-                        "Image field name [" + name + "] must match {" + BOOKMARK_PATTERN + "} bookmark format!");
-            }
-
             ImageField imageAnnot = (ImageField) field.getAnnotation(imageAnnotation);
 
             List<String> aliases = getAliases(field.getDeclaringClass(), iteratorNames);
@@ -69,7 +62,7 @@ public class FieldsMetadataExtractorImpl implements FieldsMetadataExtractor {
 
                     String[] bookmarks = imageAnnot.bookmarks();
                     for (String bookmark : bookmarks) {
-                        
+
                         metadataToFill.addFieldAsImage(
                                 bookmark,
                                 FieldHelper.getFieldPath(alias, field.getName()));
@@ -95,7 +88,7 @@ public class FieldsMetadataExtractorImpl implements FieldsMetadataExtractor {
             for (String bookmark : bookmarks) {
                 metadataToFill.addFieldAsImage(bookmark, entry.getKey());
             }
-            
+
         }
 
     }

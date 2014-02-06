@@ -2,6 +2,9 @@ package by.creepid.docsreporter;
 
 import by.creepid.docsreporter.context.validation.ReportProcessingException;
 import by.creepid.docsreporter.converter.DocFormat;
+import fr.opensagres.xdocreport.core.XDocReportException;
+import fr.opensagres.xdocreport.template.TemplateEngineKind;
+import fr.opensagres.xdocreport.template.formatter.FieldsMetadata;
 import java.io.ByteArrayOutputStream;
 import static org.junit.Assert.fail;
 
@@ -15,8 +18,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,7 +41,7 @@ public class ReportTemplateTest {
     @Autowired
     private ReportTemplate reportTemplate;
     private static final String folder = "src/test/resources/";
-    private static final String ext = ".pdf";
+    private static final String ext = ".htm";
     private static final String imageName = "logo.jpeg";
 
     private byte[] getImage(String path) {
@@ -90,12 +96,24 @@ public class ReportTemplateTest {
     }
 
     @Test
-    public final void testGenerateReport() throws IOException {
+    public final void testGenerateReport() throws IOException, XDocReportException {
+        // 1) Create FieldsMetadata by setting Velocity as template engine
+        FieldsMetadata fieldsMetadata = new FieldsMetadata(TemplateEngineKind.Velocity.name());
+
+        // 2) Load fields metadata from Java Class
+        fieldsMetadata.load("project", Project.class);
+
+    // 3) Generate XML fields in the file "project.fields.xml".
+        // Extension *.fields.xml is very important to use it with MS Macro XDocReport.dotm
+        // FieldsMetadata#saveXML is called with true to indent the XML.
+        File xmlFieldsFile = new File(folder + "project.fields.xml");
+        fieldsMetadata.saveXML(new FileOutputStream(xmlFieldsFile), true);
+
         ByteArrayOutputStream out = null;
         try {
             String docName = folder + "out_" + getTimestamp() + ext;
-
-            out = (ByteArrayOutputStream) reportTemplate.generateReport(DocFormat.getFormat(docName), getProject());
+            Map<String, byte[]> map = new HashMap<>();
+            out = (ByteArrayOutputStream) reportTemplate.generateReport(DocFormat.getFormat(docName), getProject(), map);
             File file = new File(docName);
             file.createNewFile();
             OutputStream outFile = new FileOutputStream(file);
@@ -106,13 +124,26 @@ public class ReportTemplateTest {
             }
             outFile.close();
 
+            Set<Map.Entry<String, byte[]>> set = map.entrySet();
+            for (Map.Entry<String, byte[]> entry : set) {
+                file = new File(folder + entry.getKey());
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+
+                outFile = new FileOutputStream(file);
+                outFile.write(entry.getValue());
+            }
+
         } catch (ReportProcessingException ex) {
+
             System.out.println(ex.getMessage());
             Errors errors = reportTemplate.getFieldErrors();
-            List<ObjectError> errorsList = errors.getAllErrors();
-            for (ObjectError objectError : errorsList) {
-                System.out.println(objectError.getDefaultMessage());
-                System.out.println(objectError.getCode());
+            if (errors != null) {
+                List<ObjectError> errorsList = errors.getAllErrors();
+                for (ObjectError objectError : errorsList) {
+                    System.out.println(objectError.getDefaultMessage());
+                    System.out.println(objectError.getCode());
+                }
             }
         } finally {
             try {

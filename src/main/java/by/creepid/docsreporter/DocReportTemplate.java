@@ -8,6 +8,7 @@ import by.creepid.docsreporter.context.validation.ReportProcessingException;
 import by.creepid.docsreporter.converter.DocConverterAdapter;
 import by.creepid.docsreporter.converter.DocFormat;
 import static by.creepid.docsreporter.converter.DocFormat.*;
+import by.creepid.docsreporter.converter.ImageExtractor;
 import fr.opensagres.xdocreport.core.XDocReportException;
 import java.io.OutputStream;
 
@@ -21,10 +22,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -36,23 +37,30 @@ import org.springframework.validation.Validator;
 public class DocReportTemplate implements ReportTemplate {
 
     private static final String SAX_DRIVER_PROP = "org.xml.sax.driver";
+
     @Autowired
     private DocReportFactory docReportFactory;
     @Autowired
     private ContextFactory contextFactory;
+
     @Resource(name = "docConverters")
     private List<DocConverterAdapter> docConverters;
     @Autowired(required = false)
     private FieldsMetadataExtractor metadataExtractor;
+
     private ThreadLocal<IContext> contextLocal;
     private IXDocReport docReport;
+
     private Class<?> modelClass;
     private String modelName;
     private String templatePath;
     private DocFormat templateFormat;
+
     private FieldsMetadata metadata;
     private Map<String, Class<?>> iteratorNames;
+
     private Validator reportValidator;
+
     private volatile Errors fieldErrors;
 
     public DocReportTemplate() {
@@ -113,13 +121,23 @@ public class DocReportTemplate implements ReportTemplate {
         throw new IllegalStateException("No document converters found!");
     }
 
-    protected OutputStream convert(DocFormat targetFormat, InputStream in)
+    protected OutputStream convert(DocFormat targetFormat, InputStream in, Map<String, byte[]> imgs)
             throws Exception {
         DocConverterAdapter converter = findConverter(targetFormat);
 
         ByteArrayOutputStream out;
-        synchronized (DocReportTemplate.class) {
-            out = (ByteArrayOutputStream) converter.convert(targetFormat, in);
+        out = (ByteArrayOutputStream) converter.convert(targetFormat, in);
+
+        ImageExtractor extractor = converter.getImageExtractor();
+        if (extractor != null) {
+
+            Iterator<Map.Entry<String, byte[]>> iter = extractor.getImageIterator();
+            while (iter.hasNext()) {
+                Map.Entry<String, byte[]> entry = iter.next();
+                imgs.put(entry.getKey(), entry.getValue());
+                iter.remove();
+            }
+
         }
 
         return out;
@@ -144,7 +162,7 @@ public class DocReportTemplate implements ReportTemplate {
     }
 
     @Override
-    public OutputStream generateReport(DocFormat targetFormat, Object model)
+    public OutputStream generateReport(DocFormat targetFormat, Object model, Map<String, byte[]> imgs)
             throws ReportProcessingException {
         if (targetFormat == UNSUPPORTED) {
             throw new ReportProcessingException("Given format is not supported!");
@@ -167,8 +185,9 @@ public class DocReportTemplate implements ReportTemplate {
 
             if (targetFormat != templateFormat) {
                 InputStream in = new ByteArrayInputStream(out.toByteArray());
-                out = (ByteArrayOutputStream) convert(targetFormat, in);
+                out = (ByteArrayOutputStream) convert(targetFormat, in, imgs);
             }
+
         } catch (ReportProcessingException ex) {
             throw ex;
         } catch (Exception ex) {

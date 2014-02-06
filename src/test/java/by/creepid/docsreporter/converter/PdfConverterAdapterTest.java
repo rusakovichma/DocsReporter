@@ -30,7 +30,7 @@ public class PdfConverterAdapterTest {
     private DocConverterAdapter converter;
 
     public PdfConverterAdapterTest() {
-        converter = new PdfConverterAdapter();
+        converter = new PoiPdfConverterAdapter();
     }
 
     @BeforeClass

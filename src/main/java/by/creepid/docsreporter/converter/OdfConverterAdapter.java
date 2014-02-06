@@ -9,29 +9,28 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.apache.poi.xwpf.converter.core.IXWPFConverter;
-import org.apache.poi.xwpf.converter.core.Options;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-
-import org.odftoolkit.odfdom.converter.xhtml.XHTMLConverter;
+import org.odftoolkit.odfdom.converter.core.IODFConverter;
+import org.odftoolkit.odfdom.converter.core.Options;
+import org.odftoolkit.odfdom.converter.pdf.PdfOptions;
+import org.odftoolkit.odfdom.doc.OdfTextDocument;
 
 /**
  *
  * @author rusakovich
  */
-public abstract class PoiConverterAdapter<S extends DocFormat, E extends DocFormat>
+public abstract class OdfConverterAdapter<S extends DocFormat, E extends DocFormat>
         implements DocConverterAdapter {
 
-    protected final IXWPFConverter converter;
+    protected final IODFConverter converter;
     protected E format;
 
-    PoiConverterAdapter(IXWPFConverter converter) {
+    OdfConverterAdapter(IODFConverter converter) {
         this.converter = converter;
     }
 
-    private XWPFDocument createDocument(InputStream in)
-            throws IOException {
-        return new XWPFDocument(in);
+    private OdfTextDocument createDocument(InputStream in)
+            throws Exception {
+        return OdfTextDocument.loadDocument(in);
     }
 
     public OutputStream convert(DocFormat targetFormat, InputStream in)
@@ -40,8 +39,14 @@ public abstract class PoiConverterAdapter<S extends DocFormat, E extends DocForm
             throw new IllegalArgumentException(
                     "Target must have " + getTargetFormat().getExts()[0] + " extension!");
         }
+        OdfTextDocument doc = null;
 
-        XWPFDocument doc = createDocument(in);
+        try {
+            doc = createDocument(in);
+        } catch (Exception ex) {
+            throw new IOException(ex);
+        }
+
         OutputStream out = new ByteArrayOutputStream();
 
         synchronized (converter) {
@@ -51,13 +56,14 @@ public abstract class PoiConverterAdapter<S extends DocFormat, E extends DocForm
         return out;
     }
 
-    abstract Options getOptions();
-
     @Override
     public abstract E getTargetFormat();
 
+    abstract Options getOptions();
+
     @Override
     public DocFormat getSourceFormat() {
-        return DocFormat.DOCX;
+        return DocFormat.ODT;
     }
+
 }
