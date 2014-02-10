@@ -8,12 +8,10 @@ import by.creepid.docsreporter.context.validation.ReportProcessingException;
 import by.creepid.docsreporter.converter.DocConverterAdapter;
 import by.creepid.docsreporter.converter.DocFormat;
 import static by.creepid.docsreporter.converter.DocFormat.*;
-import by.creepid.docsreporter.converter.ImageExtractor;
+import by.creepid.docsreporter.converter.images.ImageExtractObserver;
 import fr.opensagres.xdocreport.core.XDocReportException;
 import java.io.OutputStream;
-
 import org.springframework.stereotype.Service;
-
 import fr.opensagres.xdocreport.document.IXDocReport;
 import fr.opensagres.xdocreport.template.FieldsExtractor;
 import fr.opensagres.xdocreport.template.IContext;
@@ -22,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -121,28 +118,6 @@ public class DocReportTemplate implements ReportTemplate {
         throw new IllegalStateException("No document converters found!");
     }
 
-    protected OutputStream convert(DocFormat targetFormat, InputStream in, Map<String, byte[]> imgs)
-            throws Exception {
-        DocConverterAdapter converter = findConverter(targetFormat);
-
-        ByteArrayOutputStream out;
-        out = (ByteArrayOutputStream) converter.convert(targetFormat, in);
-
-        ImageExtractor extractor = converter.getImageExtractor();
-        if (extractor != null) {
-
-            Iterator<Map.Entry<String, byte[]>> iter = extractor.getImageIterator();
-            while (iter.hasNext()) {
-                Map.Entry<String, byte[]> entry = iter.next();
-                imgs.put(entry.getKey(), entry.getValue());
-                iter.remove();
-            }
-
-        }
-
-        return out;
-    }
-
     private synchronized void validate(Object model)
             throws ReportProcessingException {
         try {
@@ -154,15 +129,16 @@ public class DocReportTemplate implements ReportTemplate {
             ValidationUtils.invokeValidator(reportValidator, fieldsExtractor, fieldErrors);
 
             if (fieldErrors.hasErrors()) {
-                throw new ReportProcessingException("Invalid report fields found");
+                ReportProcessingException ex = new ReportProcessingException(
+                        "Invalid report fields found", fieldErrors);
+                throw ex;
             }
-        } catch (XDocReportException | IOException | ReportProcessingException ex) {
+        } catch (XDocReportException | IOException ex) {
             throw new ReportProcessingException(ex);
         }
     }
 
-    @Override
-    public OutputStream generateReport(DocFormat targetFormat, Object model, Map<String, byte[]> imgs)
+    public OutputStream generateReport(DocFormat targetFormat, Object model, ImageExtractObserver observer)
             throws ReportProcessingException {
         if (targetFormat == UNSUPPORTED) {
             throw new ReportProcessingException("Given format is not supported!");
@@ -174,6 +150,7 @@ public class DocReportTemplate implements ReportTemplate {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
+        DocConverterAdapter converter = null;
         try {
             validate(model);
 
@@ -185,13 +162,25 @@ public class DocReportTemplate implements ReportTemplate {
 
             if (targetFormat != templateFormat) {
                 InputStream in = new ByteArrayInputStream(out.toByteArray());
-                out = (ByteArrayOutputStream) convert(targetFormat, in, imgs);
+
+                converter = findConverter(targetFormat);
+                if (converter != null) {
+
+                    converter.addImageExtractObserver(observer);
+
+                    out = (ByteArrayOutputStream) converter.convert(targetFormat, in);
+
+                }
             }
 
         } catch (ReportProcessingException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new ReportProcessingException(ex);
+        } finally {
+            if (converter != null) {
+                converter.removeImageExtractObserver(observer);
+            }
         }
 
         return out;

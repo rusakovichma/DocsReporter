@@ -5,12 +5,13 @@
  */
 package by.creepid.docsreporter.converter;
 
+import by.creepid.docsreporter.converter.images.ImageExtractObservable;
+import by.creepid.docsreporter.converter.images.ImageExtractObserver;
 import java.io.IOException;
 import org.apache.poi.xwpf.converter.core.IImageExtractor;
 import org.apache.poi.xwpf.converter.core.Options;
 import org.apache.poi.xwpf.converter.xhtml.XHTMLConverter;
 import org.apache.poi.xwpf.converter.xhtml.XHTMLOptions;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
@@ -22,10 +23,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public abstract class PoiXhtmlConverterAdapter<DOCX, HTMLX> extends PoiConverterAdapter
-        implements InitializingBean{
+        implements InitializingBean {
 
     private XHTMLOptions options;
-    private ThreadLocal<ImageExtractor> extractors;
+    private ThreadLocal<ImageExtractObservable> observables;
 
     public PoiXhtmlConverterAdapter() {
         super(XHTMLConverter.getInstance());
@@ -37,36 +38,47 @@ public abstract class PoiXhtmlConverterAdapter<DOCX, HTMLX> extends PoiConverter
     }
 
     @Override
-    public ImageExtractor getImageExtractor() {
-        ImageExtractor extractor = extractors.get();
-        extractors.remove();
-        return extractor;
-    }
-
-    @Override
     public void afterPropertiesSet() throws Exception {
         options = XHTMLOptions.create();
-        extractors = new ThreadLocal<ImageExtractor>();
+        observables = new ThreadLocal<ImageExtractObservable>();
     }
-
-    public abstract ImageExtractor createExctractor();
 
     @Override
     Options getOptions() {
-        final ImageExtractor extractor = createExctractor();
+        final ImageExtractObservable observable = getImageExtractObservable();
 
         options.setExtractor(new IImageExtractor() {
 
             @Override
             public void extract(String string, byte[] bytes)
                     throws IOException {
-                extractor.addImage(string, bytes);
+                observable.fireExtractImageEvent(bytes, string);
             }
         });
 
-        extractors.set(extractor);
-
         return options;
+    }
+
+    public abstract ImageExtractObservable createImageExtractObservable();
+
+    public ImageExtractObservable getImageExtractObservable() {
+        if (observables.get() == null) {
+            observables.set(createImageExtractObservable());
+        }
+
+        return observables.get();
+    }
+
+    @Override
+    public void addImageExtractObserver(ImageExtractObserver observer) {
+        ImageExtractObservable observable = getImageExtractObservable();
+        observable.addImageExtractObserver(observer);
+    }
+
+    @Override
+    public void removeImageExtractObserver(ImageExtractObserver observer) {
+        ImageExtractObservable observable = getImageExtractObservable();
+        observable.removeObserver(observer);
     }
 
 }

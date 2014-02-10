@@ -2,6 +2,7 @@ package by.creepid.docsreporter;
 
 import by.creepid.docsreporter.context.validation.ReportProcessingException;
 import by.creepid.docsreporter.converter.DocFormat;
+import by.creepid.docsreporter.converter.images.ImageExtractObserver;
 import fr.opensagres.xdocreport.core.XDocReportException;
 import fr.opensagres.xdocreport.template.TemplateEngineKind;
 import fr.opensagres.xdocreport.template.formatter.FieldsMetadata;
@@ -9,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -41,15 +43,17 @@ public class ReportTemplateTest {
     @Autowired
     private ReportTemplate reportTemplate;
     private static final String folder = "src/test/resources/";
-    private static final String ext = ".htm";
+    private static final String ext = ".pdf";
     private static final String imageName = "logo.jpeg";
 
     private byte[] getImage(String path) {
         File fi = new File(path);
+
         try {
             return Files.readAllBytes(fi.toPath());
         } catch (IOException ex) {
-            Logger.getLogger(ReportTemplateTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ReportTemplateTest.class.getName()).
+                    log(Level.SEVERE, null, ex);
         }
 
         throw new RuntimeException("Cannot set the photo");
@@ -103,20 +107,58 @@ public class ReportTemplateTest {
         // 2) Load fields metadata from Java Class
         fieldsMetadata.load("project", Project.class);
 
-    // 3) Generate XML fields in the file "project.fields.xml".
+        // 3) Generate XML fields in the file "project.fields.xml".
         // Extension *.fields.xml is very important to use it with MS Macro XDocReport.dotm
         // FieldsMetadata#saveXML is called with true to indent the XML.
         File xmlFieldsFile = new File(folder + "project.fields.xml");
         fieldsMetadata.saveXML(new FileOutputStream(xmlFieldsFile), true);
 
         ByteArrayOutputStream out = null;
+        ImageExtractObserver observer = new ImageExtractObserver() {
+
+            @Override
+            public void getImage(byte[] content, String path) {
+                System.out.println(path);
+                OutputStream outFile = null;
+                try {
+
+                    File file = new File(folder + path);
+                    file.getParentFile().mkdirs();
+                    file.createNewFile();
+
+                    outFile = new FileOutputStream(file);
+                    outFile.write(content);
+
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(ReportTemplateTest.class.getName()).
+                            log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(ReportTemplateTest.class.getName()).
+                            log(Level.SEVERE, null, ex);
+                } finally {
+                    if (outFile != null) {
+                        try {
+                            outFile.close();
+                        } catch (IOException ex) {
+                            Logger.getLogger(ReportTemplateTest.class.getName()).
+                                    log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+
+            }
+        };
+
+        OutputStream outFile = null;
         try {
             String docName = folder + "out_" + getTimestamp() + ext;
             Map<String, byte[]> map = new HashMap<>();
-            out = (ByteArrayOutputStream) reportTemplate.generateReport(DocFormat.getFormat(docName), getProject(), map);
+
+            out = (ByteArrayOutputStream) reportTemplate.generateReport(DocFormat.getFormat(docName), getProject(), observer);
+
             File file = new File(docName);
             file.createNewFile();
-            OutputStream outFile = new FileOutputStream(file);
+            outFile = new FileOutputStream(file);
 
             out.writeTo(outFile);
             if (!new File(docName).exists()) {
@@ -124,20 +166,10 @@ public class ReportTemplateTest {
             }
             outFile.close();
 
-            Set<Map.Entry<String, byte[]>> set = map.entrySet();
-            for (Map.Entry<String, byte[]> entry : set) {
-                file = new File(folder + entry.getKey());
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-
-                outFile = new FileOutputStream(file);
-                outFile.write(entry.getValue());
-            }
-
         } catch (ReportProcessingException ex) {
 
             System.out.println(ex.getMessage());
-            Errors errors = reportTemplate.getFieldErrors();
+            Errors errors = ex.getErrors();
             if (errors != null) {
                 List<ObjectError> errorsList = errors.getAllErrors();
                 for (ObjectError objectError : errorsList) {
@@ -149,6 +181,9 @@ public class ReportTemplateTest {
             try {
                 if (out != null) {
                     out.close();
+                }
+                if (outFile != null) {
+                    outFile.close();
                 }
             } catch (IOException ex) {
                 Logger.getLogger(ReportTemplateTest.class.getName()).log(Level.SEVERE, null, ex);

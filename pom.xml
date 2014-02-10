@@ -232,6 +232,27 @@
             <artifactId>cglib</artifactId>
             <version>2.2</version>
         </dependency>
+        
+        <dependency>
+            <groupId>com.fineshambles.flying_mpostick</groupId>
+            <artifactId>flying_mpostick</artifactId>
+            <version>1.0-20130501.081421-1</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.jhlabs</groupId>
+            <artifactId>filters</artifactId>
+            <version>2.0.235-1</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.mortennobel</groupId>
+            <artifactId>java-image-scaling</artifactId>
+            <version>0.8.5</version>
+        </dependency>
+            
+            
+        
     </dependencies>
 	
     <repositories>
@@ -248,6 +269,10 @@
             <id>releases</id>
             <name>Releases</name>
             <url>https://oss.sonatype.org/content/repositories/releases</url>
+        </repository>
+        <repository>
+            <id>flying_mpostick</id>
+            <url>https://raw.github.com/imccoy/flying_mpostick/master/snapshots</url>
         </repository>
     </repositories>
 

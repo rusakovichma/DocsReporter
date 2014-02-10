@@ -20,16 +20,20 @@
         <bean class="by.creepid.docsreporter.formatter.DecimalDocTypesFormatter" />
     </util:list>
     
-    <bean id="imageExtractor" class="by.creepid.docsreporter.converter.ImageExtractorImpl"/>
+    <bean id="imageExtractObservable" class="by.creepid.docsreporter.converter.images.ImageExtractObservableImpl" 
+          scope="prototype" lazy-init="true"/>
     
     <util:list id="docConverters">
         <bean class="by.creepid.docsreporter.converter.PoiXhtmlConverterAdapter">
-            <lookup-method name="createExctractor" bean="imageExtractor"/>
+            <lookup-method name="createImageExtractObservable" bean="imageExtractObservable"/>
         </bean>
+        
         <bean class="by.creepid.docsreporter.converter.PoiPdfConverterAdapter"/>
+        
         <bean class="by.creepid.docsreporter.converter.OdfXhtmlConverterAdapter">
-            <lookup-method name="createExctractor" bean="imageExtractor"/>
+            <lookup-method name="createImageExtractObservable" bean="imageExtractObservable"/>
         </bean>
+        
         <bean class="by.creepid.docsreporter.converter.OdfPdfConverterAdapter"/>
     </util:list>
        

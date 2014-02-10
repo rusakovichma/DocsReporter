@@ -5,6 +5,7 @@
  */
 package by.creepid.docsreporter.converter;
 
+import by.creepid.docsreporter.converter.images.ImageExtractObserver;
 import org.odftoolkit.odfdom.converter.core.Options;
 import org.odftoolkit.odfdom.converter.pdf.PdfConverter;
 import org.odftoolkit.odfdom.converter.pdf.PdfOptions;
@@ -46,8 +47,11 @@ public class OdfPdfConverterAdapter<ODT, PDF> extends OdfConverterAdapter
     }
 
     @Override
-    public ImageExtractor getImageExtractor() {
-        return null;
+    public void addImageExtractObserver(ImageExtractObserver observer) {
+    }
+
+    @Override
+    public void removeImageExtractObserver(ImageExtractObserver observer) {
     }
 
 }

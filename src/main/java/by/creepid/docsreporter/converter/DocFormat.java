@@ -16,8 +16,8 @@ public enum DocFormat {
     PDF("application/pdf", new String[]{"pdf"}),
     ODT("application/vnd.oasis.opendocument.text", new String[]{"odt"}),
     XHTML("application/xhtml+xml", new String[]{"htm", "html", "xhtml"}),
-    UNSUPPORTED("text/html", new String[]{""});
-    
+    UNSUPPORTED("application/octet-stream", new String[]{""});
+
     private final String mimeType;
     private final String[] exts;
 

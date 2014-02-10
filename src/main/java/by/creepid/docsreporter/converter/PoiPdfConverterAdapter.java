@@ -5,6 +5,7 @@
  */
 package by.creepid.docsreporter.converter;
 
+import by.creepid.docsreporter.converter.images.ImageExtractObserver;
 import org.apache.poi.xwpf.converter.core.Options;
 import org.apache.poi.xwpf.converter.pdf.PdfConverter;
 import org.apache.poi.xwpf.converter.pdf.PdfOptions;
@@ -34,11 +35,6 @@ public class PoiPdfConverterAdapter<DOCX, PDF> extends PoiConverterAdapter
     }
 
     @Override
-    public ImageExtractor getImageExtractor() {
-        return null;
-    }
-
-    @Override
     Options getOptions() {
         return options;
     }
@@ -52,6 +48,14 @@ public class PoiPdfConverterAdapter<DOCX, PDF> extends PoiConverterAdapter
     @Override
     public void setEncoding(String encoding) {
         this.encoding = encoding;
+    }
+
+    @Override
+    public void addImageExtractObserver(ImageExtractObserver observer) {
+    }
+
+    @Override
+    public void removeImageExtractObserver(ImageExtractObserver observer) {
     }
 
 }

@@ -5,6 +5,7 @@
  */
 package by.creepid.docsreporter.converter;
 
+import by.creepid.docsreporter.converter.images.ImageExtractObserver;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -23,6 +24,8 @@ public interface DocConverterAdapter<S extends DocFormat, E extends DocFormat> {
 
     public S getSourceFormat();
 
-    public ImageExtractor getImageExtractor();
+    public void addImageExtractObserver(ImageExtractObserver observer);
+
+    public void removeImageExtractObserver(ImageExtractObserver observer);
 
 }

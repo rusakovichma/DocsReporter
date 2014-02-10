@@ -5,6 +5,8 @@
  */
 package by.creepid.docsreporter.converter;
 
+import by.creepid.docsreporter.converter.images.ImageExtractObservable;
+import by.creepid.docsreporter.converter.images.ImageExtractObservableImpl;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,10 +34,9 @@ public class HtmlxConverterAdapterTest {
         converter = new PoiXhtmlConverterAdapter() {
 
             @Override
-            public ImageExtractor createExctractor() {
-                return new ImageExtractorImpl();
+            public ImageExtractObservable createImageExtractObservable() {
+                return new ImageExtractObservableImpl();
             }
-
         };
     }
 

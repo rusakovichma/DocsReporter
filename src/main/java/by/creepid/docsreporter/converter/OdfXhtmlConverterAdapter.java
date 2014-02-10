@@ -5,12 +5,13 @@
  */
 package by.creepid.docsreporter.converter;
 
+import by.creepid.docsreporter.converter.images.ImageExtractObservable;
+import by.creepid.docsreporter.converter.images.ImageExtractObserver;
 import java.io.IOException;
 import org.odftoolkit.odfdom.converter.core.IImageExtractor;
 import org.odftoolkit.odfdom.converter.core.Options;
 import org.odftoolkit.odfdom.converter.xhtml.XHTMLConverter;
 import org.odftoolkit.odfdom.converter.xhtml.XHTMLOptions;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -21,7 +22,7 @@ public abstract class OdfXhtmlConverterAdapter<ODT, PDF> extends OdfConverterAda
         implements InitializingBean {
 
     private XHTMLOptions options;
-    private ThreadLocal<ImageExtractor> extractors;
+    private ThreadLocal<ImageExtractObservable> observables;
 
     public OdfXhtmlConverterAdapter() {
         super(XHTMLConverter.getInstance());
@@ -30,7 +31,7 @@ public abstract class OdfXhtmlConverterAdapter<ODT, PDF> extends OdfConverterAda
     @Override
     public void afterPropertiesSet() throws Exception {
         options = XHTMLOptions.create();
-        extractors = new ThreadLocal<ImageExtractor>();
+        observables = new ThreadLocal<ImageExtractObservable>();
     }
 
     @Override
@@ -40,29 +41,40 @@ public abstract class OdfXhtmlConverterAdapter<ODT, PDF> extends OdfConverterAda
 
     @Override
     Options getOptions() {
-        final ImageExtractor extractor = createExctractor();
+        final ImageExtractObservable observable = getImageExtractObservable();
 
         options.setExtractor(new IImageExtractor() {
 
             @Override
             public void extract(String string, byte[] bytes)
                     throws IOException {
-                extractor.addImage(string, bytes);
+                observable.fireExtractImageEvent(bytes, string);
             }
         });
-
-        extractors.set(extractor);
 
         return options;
     }
 
-    public abstract ImageExtractor createExctractor();
+    public abstract ImageExtractObservable createImageExtractObservable();
+
+    public ImageExtractObservable getImageExtractObservable() {
+        if (observables.get() == null) {
+            observables.set(createImageExtractObservable());
+        }
+
+        return observables.get();
+    }
 
     @Override
-    public ImageExtractor getImageExtractor() {
-        ImageExtractor extractor = extractors.get();
-        extractors.remove();
-        return extractor;
+    public void addImageExtractObserver(ImageExtractObserver observer) {
+        ImageExtractObservable observable = getImageExtractObservable();
+        observable.addImageExtractObserver(observer);
+    }
+
+    @Override
+    public void removeImageExtractObserver(ImageExtractObserver observer) {
+        ImageExtractObservable observable = getImageExtractObservable();
+        observable.removeObserver(observer);
     }
 
 }
