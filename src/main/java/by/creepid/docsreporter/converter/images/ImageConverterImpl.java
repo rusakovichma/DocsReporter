@@ -8,6 +8,7 @@ package by.creepid.docsreporter.converter.images;
 import com.mortennobel.imagescaling.AdvancedResizeOp;
 import com.mortennobel.imagescaling.AdvancedResizeOp.UnsharpenMask;
 import com.mortennobel.imagescaling.ResampleOp;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.ByteArrayInputStream;
@@ -30,8 +31,6 @@ public class ImageConverterImpl implements ImageConverter {
 
     //image header length
     private static final int IMAGE_HEADER_BLOCK_SIZE = 30;
-    //image prewiew scale
-    private static final int IMAGE_CONVERT_SCALE = 200;
     //image prewiew mask
     private static final UnsharpenMask DEFAULT_UNSHARPEN_MASK = AdvancedResizeOp.UnsharpenMask.Normal;
 
@@ -47,7 +46,7 @@ public class ImageConverterImpl implements ImageConverter {
      *
      */
     @PostConstruct
-    private static void addCMYKServiceProvider() {
+    private void addCMYKServiceProvider() {
         IIORegistry reg = IIORegistry.getDefaultInstance();
 
         ImageReaderSpi cmykSpi = new CMYKJPEGImageReaderSpi();
@@ -66,6 +65,10 @@ public class ImageConverterImpl implements ImageConverter {
     public boolean isSupportedImageType(byte[] photo) {
         boolean result = true;
 
+        if (photo == null) {
+            return !result;
+        }
+
         BufferedImage buffImg = null;
 
         try {
@@ -74,7 +77,7 @@ public class ImageConverterImpl implements ImageConverter {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        
+
         result = (buffImg != null);
         return result;
     }
@@ -106,7 +109,9 @@ public class ImageConverterImpl implements ImageConverter {
      * @return
      */
     public boolean isPhoto(byte[] photo) {
-        boolean result = (getImageForm(photo) != ImageForm.unknown);
+        boolean result = (photo == null)
+                ? false
+                : (getImageForm(photo) != ImageForm.unknown);
         return result;
     }
 
@@ -139,8 +144,9 @@ public class ImageConverterImpl implements ImageConverter {
      * @return
      * @throws IOException
      */
-    public byte[] convertPhotoToPreview(byte[] photo, int imageScale) throws IOException {
-        int size;
+    public byte[] convertPhotoToPreview(byte[] photo, int width, int height)
+            throws IOException {
+        int sizeCorrect;
 
         BufferedImage result;
         BufferedImage original = this.getBufferedImage(photo);
@@ -150,16 +156,25 @@ public class ImageConverterImpl implements ImageConverter {
             original = convertToRGB(original);
         }
 
-        String formatOutput = (format == ImageForm.jpeg) ? "jpeg" : "png";
+        ImageForm formatOutput = (format != ImageForm.jpeg)
+                ? ImageForm.png
+                : ImageForm.jpeg;
 
-        if (original.getTileHeight() >= original.getTileWidth()) {
+        if (width == Integer.MIN_VALUE && height == Integer.MIN_VALUE) {
+            return this.getImageBytes(original, formatOutput);
+        }
 
-            size = original.getTileWidth() * imageScale / original.getTileHeight();
-            result = resizeImageWithHint(original, size, imageScale);
+        if (width == Integer.MIN_VALUE && height != Integer.MIN_VALUE) {
+
+            sizeCorrect = original.getTileWidth() * height / original.getTileHeight();
+            result = resizeImageWithHint(original, sizeCorrect, height);
+
+        } else if (height == Integer.MIN_VALUE && width != Integer.MIN_VALUE) {
+
+            sizeCorrect = original.getTileHeight() * width / original.getTileWidth();
+            result = resizeImageWithHint(original, width, sizeCorrect);
         } else {
-
-            size = original.getTileHeight() * imageScale / original.getTileWidth();
-            result = resizeImageWithHint(original, imageScale, size);
+            result = resizeImageWithHint(original, width, height);
         }
 
         return this.getImageBytes(result, formatOutput);
@@ -190,12 +205,12 @@ public class ImageConverterImpl implements ImageConverter {
      * @return
      * @throws IOException
      */
-    private byte[] getImageBytes(BufferedImage result, String formatOutput) throws IOException {
+    private byte[] getImageBytes(BufferedImage result, ImageForm form) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] imageBytes = null;
 
         try {
-            ImageIO.write(result, formatOutput, baos);
+            ImageIO.write(result, form.toString(), baos);
             baos.flush();
 
             imageBytes = baos.toByteArray();
@@ -223,7 +238,6 @@ public class ImageConverterImpl implements ImageConverter {
             for (Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
                     iter.hasNext();) {
                 ImageReader reader = iter.next();
-
                 try {
                     reader.setInput(iis);
                     buffImg = reader.read(0);
@@ -251,8 +265,9 @@ public class ImageConverterImpl implements ImageConverter {
      * @throws IOException
      */
     private BufferedImage convertToRGB(BufferedImage cmykImage) throws IOException {
-        BufferedImage rgbImage = new BufferedImage(cmykImage.getWidth(),
-                cmykImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+        BufferedImage rgbImage = new BufferedImage(
+                cmykImage.getWidth(), cmykImage.getHeight(),
+                BufferedImage.TYPE_INT_RGB);
 
         ColorConvertOp op = new ColorConvertOp(null);
         op.filter(cmykImage, rgbImage);
@@ -274,7 +289,9 @@ public class ImageConverterImpl implements ImageConverter {
             return cmykBytes;
         }
 
-        String formatOutput = (format == ImageForm.jpeg) ? "jpeg" : "png";
+        ImageForm formatOutput = (format != ImageForm.jpeg)
+                ? ImageForm.png
+                : ImageForm.jpeg;
 
         BufferedImage cmykImage = getBufferedImage(cmykBytes);
         BufferedImage rgbImage = convertToRGB(cmykImage);

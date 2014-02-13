@@ -84,7 +84,7 @@ public class DocReportTemplate implements ReportTemplate {
 
         clearSAXDriverProperty();
 
-        reportValidator = new ReportFieldsValidator(modelClass, modelName);
+        reportValidator = new ReportFieldsValidator(modelClass, modelName, iteratorNames);
     }
 
     private IContext getContext() {

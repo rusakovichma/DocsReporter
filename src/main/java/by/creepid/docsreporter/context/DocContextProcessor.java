@@ -1,6 +1,8 @@
 package by.creepid.docsreporter.context;
 
+import by.creepid.docsreporter.context.annotations.FieldEmptyValue;
 import by.creepid.docsreporter.context.annotations.ImageField;
+import by.creepid.docsreporter.converter.images.ImageConverter;
 import java.lang.reflect.Field;
 
 import org.apache.log4j.Level;
@@ -8,26 +10,35 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import by.creepid.docsreporter.formatter.DocTypesFormatter;
-import by.creepid.docsreporter.utils.ClassUtil;
 import by.creepid.docsreporter.utils.FieldHelper;
 import by.creepid.docsreporter.utils.SimpleTypes;
 import fr.opensagres.xdocreport.document.images.ByteArrayImageProvider;
 import fr.opensagres.xdocreport.document.images.IImageProvider;
 import fr.opensagres.xdocreport.template.IContext;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 public class DocContextProcessor implements ContextProcessor {
 
+    private static final Class<? extends Annotation> imageAnnotatioin = ImageField.class;
+    private static final Class<? extends Annotation> emptyValueAnnotatioin = FieldEmptyValue.class;
+
+    private static final String EMPTY_FIELD_DEFAULT = "";
+
     @Resource(name = "formatters")
     private List<DocTypesFormatter> formatters;
-    private String emptyField;
+
+    private String emptyField = EMPTY_FIELD_DEFAULT;
+
+    @Autowired
+    private ImageConverter imageConverter;
     private IContext context = null;
-    private static final Class<? extends Annotation> imageAnnotatioin = ImageField.class;
 
     private void checkContext() {
         if (context == null) {
@@ -68,12 +79,73 @@ public class DocContextProcessor implements ContextProcessor {
     }
 
     private void processImage(String imageMark, byte[] image, Annotation imageAnnotatioin) {
-        IImageProvider imageProvider = new ByteArrayImageProvider(image, false);
+
+        if (!imageConverter.isPhoto(image) || !imageConverter.isSupportedImageType(image)) {
+            return;
+        }
+
+        ImageField imageAnnot = (ImageField) imageAnnotatioin;
+
+        boolean useImageSize = !imageAnnot.useTemplateSize();
+
+        IImageProvider imageProvider;
+
+        float width = imageAnnot.width();
+        float height = imageAnnot.height();
+
+        if (!imageAnnot.useRatioSize()
+                && width != Float.MIN_VALUE
+                && height != Float.MIN_VALUE) {
+
+            try {
+                image = imageConverter.convertPhotoToPreview(image,
+                        Math.round(width), Math.round(height));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            imageProvider = new ByteArrayImageProvider(image, useImageSize);
+            imageProvider.setSize(width, height);
+
+        } else if (imageAnnot.useRatioSize()
+                && (width != Float.MIN_VALUE || height != Float.MIN_VALUE)) {
+
+            if (width != Float.MIN_VALUE) {
+
+                try {
+                    image = imageConverter.convertPhotoToPreview(image,
+                            Math.round(width), Integer.MIN_VALUE);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                imageProvider = new ByteArrayImageProvider(image, useImageSize);
+
+                imageProvider.setUseImageSize(true);
+                imageProvider.setWidth(width);
+            } else {
+
+                try {
+                    image = imageConverter.convertPhotoToPreview(image,
+                            Integer.MIN_VALUE, Math.round(height));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                imageProvider = new ByteArrayImageProvider(image, useImageSize);
+
+                imageProvider.setUseImageSize(true);
+                imageProvider.setHeight(height);
+            }
+
+            imageProvider.setResize(true);
+        } else {
+            imageProvider = new ByteArrayImageProvider(image, useImageSize);
+        }
+
         context.put(imageMark, imageProvider);
     }
 
     protected void processObjectFields(String contextStr, Object obj) {
-        
+
         if (obj != null) {
             Class<?> clazz = obj.getClass();
             Field[] fields = FieldHelper.getDeclaredFields(clazz, true);
@@ -89,26 +161,41 @@ public class DocContextProcessor implements ContextProcessor {
                     if (field.isAnnotationPresent(imageAnnotatioin)) {
                         processImage(contextFieldname, (byte[]) fieldObj,
                                 field.getAnnotation(imageAnnotatioin));
+
+                    } else if (field.isAnnotationPresent(emptyValueAnnotatioin) && fieldObj == null) {
+
+                        FieldEmptyValue emptyValueAnnot = (FieldEmptyValue) field.
+                                getAnnotation(emptyValueAnnotatioin);
+                        String emptyValue = emptyValueAnnot.value();
+
+                        processSimpleType(contextFieldname, emptyValue, fieldObj);
+
+                    } else if (Enum.class.isAssignableFrom(field.getType())) {
+                        Enum enumField = (Enum) fieldObj;
+                        this.put(contextFieldname, enumField.name());
                     } else {
                         this.put(contextFieldname, fieldObj);
                     }
 
                 } catch (SecurityException | IllegalArgumentException | IllegalAccessException ex) {
-                    Logger.getLogger(DocContextProcessor.class.getName()).log(
-                            Level.ERROR, null, ex);
+                    ex.printStackTrace();
                 }
             }
 
         }
     }
 
-    protected void processSimpleType(String string, Object obj) {
-        
+    protected void processSimpleType(String string, String defauleValue, Object obj) {
+
         String value = (obj != null)
                 ? getString(obj)
-                : emptyField;
+                : defauleValue;
 
         context.put(string, value);
+    }
+
+    private void processSimpleType(String string, Object obj) {
+        processSimpleType(string, emptyField, obj);
     }
 
     protected void processCollection(String string, Object obj) {
@@ -117,7 +204,7 @@ public class DocContextProcessor implements ContextProcessor {
 
     public Object put(String string, Object obj) {
         checkContext();
-        
+
         if (obj == null || SimpleTypes.isSimple(obj.getClass())) {
             processSimpleType(string, obj);
         } else if (obj instanceof Collection) {
@@ -148,5 +235,9 @@ public class DocContextProcessor implements ContextProcessor {
 
     public Map<String, Object> getContextMap() {
         return context.getContextMap();
+    }
+
+    public void setImageConverter(ImageConverter imageConverter) {
+        this.imageConverter = imageConverter;
     }
 }

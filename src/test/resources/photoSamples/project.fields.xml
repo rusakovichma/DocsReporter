@@ -25,6 +25,9 @@
 	<field name="project.Developers.Roles.Name" list="true" imageName="" syntaxKind="">
 		<description><![CDATA[]]></description>
 	</field>
+	<field name="project.Developers.Status.DeclaringClass" list="true" imageName="" syntaxKind="">
+		<description><![CDATA[]]></description>
+	</field>
 	<field name="project.Logo" list="false" imageName="project.Logo" syntaxKind="">
 		<description><![CDATA[]]></description>
 	</field>

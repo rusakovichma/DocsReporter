@@ -7,7 +7,7 @@
         
     <bean id="reportTemplate" parent="reportTemplateBase">
         <property name="templatePath">
-            <value>src/test/resources/DocxProjectWithVelocity.odt</value>
+            <value>src/test/resources/DocxProjectWithVelocity.docx</value>
         </property>
         <property name="modelClass">
             <value>by.creepid.docsreporter.Project</value>
@@ -17,6 +17,9 @@
             <map>
                 <entry key="developer">
                     <value>by.creepid.docsreporter.DeveloperWithPhoto</value>
+                </entry>
+                <entry key="role">
+                    <value>by.creepid.docsreporter.Role</value>
                 </entry>
             </map>
         </property>

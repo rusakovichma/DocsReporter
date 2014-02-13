@@ -17,7 +17,7 @@ public class Project {
     private int stuffSize;
     private Manager manager;
     private List<DeveloperWithPhoto> developers;
-    @ImageField(bookmarks={"logo"})
+    @ImageField(bookmarks = {"logo"}, width = 200)
     private byte[] logo;
 
     public Project() {

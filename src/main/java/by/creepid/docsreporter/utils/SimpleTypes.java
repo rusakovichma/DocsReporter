@@ -33,7 +33,8 @@ public final class SimpleTypes {
 
     public static boolean isSimple(Class<?> clazz) {
         return ClassUtils.isPrimitiveOrWrapper(clazz)
-                || types.contains(clazz);
+                || types.contains(clazz)
+                || Enum.class.isAssignableFrom(clazz);
     }
 
     public static Set<Class<?>> getTypes() {

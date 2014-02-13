@@ -20,6 +20,8 @@
         <bean class="by.creepid.docsreporter.formatter.DecimalDocTypesFormatter" />
     </util:list>
     
+    <bean id="imageConverter" class="by.creepid.docsreporter.converter.images.ImageConverterImpl"/> 
+    
     <bean id="imageExtractObservable" class="by.creepid.docsreporter.converter.images.ImageExtractObservableImpl" 
           scope="prototype" lazy-init="true"/>
     
@@ -56,7 +58,7 @@
     </bean>
     
     <bean id="contextProcessor" class="by.creepid.docsreporter.context.DocContextProcessor"
-          scope="prototype" lazy-init="true">
+          scope="prototype" lazy-init="true" depends-on="imageConverter">
         <property name="emptyField">
             <value>_________</value>
         </property>
@@ -72,5 +74,5 @@
     <bean id="reportTemplateBase" abstract="true" class="by.creepid.docsreporter.DocReportTemplate"
           scope="singleton" lazy-init="true" depends-on="docConverters" init-method="initContext">
     </bean>
-    
+        
 </beans>

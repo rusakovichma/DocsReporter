@@ -26,6 +26,62 @@ import org.springframework.util.ReflectionUtils.FieldFilter;
  */
 public class FieldHelper {
 
+    public static List<String> getFieldPath(final Class<?> fieldClass, final Class<?> rootClass, final String prefix) {
+        final List<String> fieldClassPathes = new LinkedList<>();
+
+        if (fieldClass.isAssignableFrom(rootClass)) {
+            fieldClassPathes.add(prefix);
+            return fieldClassPathes;
+        }
+
+        ReflectionUtils.doWithFields(rootClass,
+                new FieldCallback() {
+
+                    @Override
+                    public void doWith(final Field field)
+                    throws IllegalArgumentException, IllegalAccessException {
+                        field.setAccessible(true);
+
+                        String fieldPath = getFieldPath(prefix, field.getName());
+                        if (fieldClass.isAssignableFrom(field.getType())) {
+                            fieldClassPathes.add(fieldPath);
+                        } else {
+
+                            if (!SimpleTypes.isSimple(field.getType())
+                            && !ClassUtils.isPrimitiveArray(field.getType())
+                            && !Collection.class.isAssignableFrom(field.getType())) {
+
+                                fieldClassPathes.addAll(
+                                        getFieldPath(fieldClass, field.getType(), fieldPath));
+                            }
+
+                            if (Collection.class.isAssignableFrom(field.getType())
+                            && (field.getGenericType() != null)
+                            && (field.getGenericType() instanceof ParameterizedType)) {
+                                ParameterizedType collectionType = (ParameterizedType) field.getGenericType();
+                                Class<?> actualTypeArg = (Class<?>) collectionType.getActualTypeArguments()[0];
+
+                                fieldClassPathes.addAll(
+                                        getFieldPath(fieldClass, actualTypeArg, getFieldPath(prefix, field.getName())));
+                            }
+                        }
+                    }
+                },
+                new FieldFilter() {
+
+                    @Override
+                    public boolean matches(final Field field) {
+                        final int modifiers = field.getModifiers();
+                        // no static fields please
+                        return !Modifier.isStatic(modifiers)
+                        && !Modifier.isTransient(modifiers)
+                        && !Modifier.isAbstract(modifiers);
+                    }
+                });
+
+        return fieldClassPathes;
+    }
+
     public static List<String> getFieldHierarchy(final Class<?> clazz, final String prefix) {
         final List<String> rootHierarchy = new LinkedList<String>();
 

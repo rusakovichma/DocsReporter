@@ -18,13 +18,13 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,8 +42,8 @@ public class ReportTemplateTest {
 
     @Autowired
     private ReportTemplate reportTemplate;
-    private static final String folder = "src/test/resources/";
-    private static final String ext = ".pdf";
+    private static final String folder = "src/test/resources/photoSamples/";
+    private static final String ext = ".htm";
     private static final String imageName = "logo.jpeg";
 
     private byte[] getImage(String path) {
@@ -52,8 +52,7 @@ public class ReportTemplateTest {
         try {
             return Files.readAllBytes(fi.toPath());
         } catch (IOException ex) {
-            Logger.getLogger(ReportTemplateTest.class.getName()).
-                    log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
 
         throw new RuntimeException("Cannot set the photo");
@@ -71,23 +70,32 @@ public class ReportTemplateTest {
             Logger.getLogger(ReportTemplateTest.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        List<Role> roles = new ArrayList<Role>();
+        roles.add(new Role("Programmer"));
+        roles.add(new Role("GUI programmer"));
+
         manager.setBirthDate(birthDate);
 
         project.setManager(manager);
 
         project.add(new DeveloperWithPhoto("ZERR", "Angelo",
-                "angelo.zerr@gmail.com", birthDate, this.getImage(folder + "photo2.jpeg")));
+                "angelo.zerr@gmail.com", birthDate, this.getImage(folder + "photo2.jpeg"), roles));
         project.add(new DeveloperWithPhoto("Leclercq", "Pascal",
-                "pascal.leclercq@gmail.com", null, this.getImage(folder + "photo1.jpeg")));
+                "pascal.leclercq@gmail.com", null, this.getImage(folder + "photo1.jpeg"), roles, WorkingStatus.freelance));
 
         project.add(new DeveloperWithPhoto("Leclercq", "Pascal",
-                null, birthDate, this.getImage(folder + "photo1.jpeg")));
+                null, birthDate, this.getImage(folder + "photo1.jpeg"), roles));
 
+        roles = new ArrayList<Role>();
+        roles.add(new Role("System programmer"));
+        roles.add(new Role("Admin"));
         project.add(new DeveloperWithPhoto("Arnold", "Brown",
-                "arnoldbrown@yahoo.com", birthDate, this.getImage(folder + "photo2.jpeg")));
+                "arnoldbrown@yahoo.com", birthDate, this.getImage(folder + "photo2.jpeg"), roles));
 
+        roles = new ArrayList<Role>();
+        roles.add(new Role("Architect"));
         project.add(new DeveloperWithPhoto("Jim", "Smith",
-                "jimmythebest@tut.by", birthDate, this.getImage(folder + "photo3.jpeg")));
+                "jimmythebest@tut.by", birthDate, this.getImage(folder + "photo3.jpeg"), roles, WorkingStatus.halfTime));
 
         project.setLogo(this.getImage(folder + imageName));
 
@@ -130,18 +138,15 @@ public class ReportTemplateTest {
                     outFile.write(content);
 
                 } catch (FileNotFoundException ex) {
-                    Logger.getLogger(ReportTemplateTest.class.getName()).
-                            log(Level.SEVERE, null, ex);
+                    ex.printStackTrace();
                 } catch (IOException ex) {
-                    Logger.getLogger(ReportTemplateTest.class.getName()).
-                            log(Level.SEVERE, null, ex);
+                    ex.printStackTrace();
                 } finally {
                     if (outFile != null) {
                         try {
                             outFile.close();
                         } catch (IOException ex) {
-                            Logger.getLogger(ReportTemplateTest.class.getName()).
-                                    log(Level.SEVERE, null, ex);
+                            ex.printStackTrace();
                         }
                     }
                 }
@@ -186,7 +191,7 @@ public class ReportTemplateTest {
                     outFile.close();
                 }
             } catch (IOException ex) {
-                Logger.getLogger(ReportTemplateTest.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
             }
         }
     }

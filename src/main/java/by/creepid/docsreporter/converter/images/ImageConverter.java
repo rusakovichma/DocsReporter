@@ -44,7 +44,7 @@ public interface ImageConverter {
      * @return
      * @throws IOException
      */
-    public byte[] convertPhotoToPreview(byte[] photo, int imageScale)
+    public byte[] convertPhotoToPreview(byte[] photo, int width, int height)
             throws IOException;
 
     /**

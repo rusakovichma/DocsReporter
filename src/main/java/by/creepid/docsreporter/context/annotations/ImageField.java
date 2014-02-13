@@ -16,16 +16,15 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface ImageField {
-    
+
     public String[] bookmarks();
 
     public boolean useTemplateSize() default true;
 
-    public boolean useForcedSize() default false;
+    public boolean useRatioSize() default true;
 
-    public float width() default Float.NaN;
+    public float width() default Float.MIN_VALUE;
 
-    public float height() default Float.NaN;
+    public float height() default Float.MIN_VALUE;
 
-    public boolean useRatioSize() default false;
 }
