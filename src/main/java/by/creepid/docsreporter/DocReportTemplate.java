@@ -2,7 +2,8 @@ package by.creepid.docsreporter;
 
 import by.creepid.docsreporter.context.ContextFactory;
 import by.creepid.docsreporter.context.DocReportFactory;
-import by.creepid.docsreporter.context.meta.FieldsMetadataExtractor;
+import by.creepid.docsreporter.context.meta.FieldsMetadataFiller;
+import by.creepid.docsreporter.context.meta.MetadataFillerChain;
 import by.creepid.docsreporter.context.validation.ReportFieldsValidator;
 import by.creepid.docsreporter.context.validation.ReportProcessingException;
 import by.creepid.docsreporter.converter.DocConverterAdapter;
@@ -42,8 +43,9 @@ public class DocReportTemplate implements ReportTemplate {
 
     @Resource(name = "docConverters")
     private List<DocConverterAdapter> docConverters;
+
     @Autowired(required = false)
-    private FieldsMetadataExtractor metadataExtractor;
+    private MetadataFillerChain metadataFillerChain;
 
     private ThreadLocal<IContext> contextLocal;
     private IXDocReport docReport;
@@ -77,8 +79,8 @@ public class DocReportTemplate implements ReportTemplate {
         docReport = docReportFactory.buildReport(templatePath);
         contextLocal = new ThreadLocal<IContext>();
 
-        if (metadataExtractor != null) {
-            metadataExtractor.fillMetadata(metadata, modelClass, modelName, iteratorNames);
+        if (metadataFillerChain != null) {
+            metadataFillerChain.fillMetadata(metadata, modelClass, modelName, iteratorNames);
         }
         docReport.setFieldsMetadata(metadata);
 
@@ -138,6 +140,7 @@ public class DocReportTemplate implements ReportTemplate {
         }
     }
 
+    @Override
     public OutputStream generateReport(DocFormat targetFormat, Object model, ImageExtractObserver observer)
             throws ReportProcessingException {
         if (targetFormat == UNSUPPORTED) {
@@ -214,10 +217,6 @@ public class DocReportTemplate implements ReportTemplate {
         this.modelClass = modelClass;
     }
 
-    public void setMetadataExtractor(FieldsMetadataExtractor metadataExtractor) {
-        this.metadataExtractor = metadataExtractor;
-    }
-
     public void setBeforeRowToken(String beforeRowToken) {
         metadata.setBeforeRowToken(beforeRowToken);
     }
@@ -244,6 +243,10 @@ public class DocReportTemplate implements ReportTemplate {
 
     public Errors getFieldErrors() {
         return fieldErrors;
+    }
+
+    public void setMetadataFillerChain(MetadataFillerChain metadataFillerChain) {
+        this.metadataFillerChain = metadataFillerChain;
     }
 
 }

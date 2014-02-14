@@ -1,6 +1,6 @@
-package by.creepid.docsreporter;
+package by.creepid.docsreporter.model;
 
-import by.creepid.docsreporter.context.annotations.ImageField;
+import by.creepid.docsreporter.context.annotations.Image;
 import by.creepid.docsreporter.utils.ClassUtil;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class Project {
     private int stuffSize;
     private Manager manager;
     private List<DeveloperWithPhoto> developers;
-    @ImageField(bookmarks = {"logo"}, width = 200)
+    @Image(bookmarks = {"logo"}, width = 200)
     private byte[] logo;
 
     public Project() {

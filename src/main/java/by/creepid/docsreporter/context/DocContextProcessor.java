@@ -1,12 +1,11 @@
 package by.creepid.docsreporter.context;
 
-import by.creepid.docsreporter.context.annotations.FieldEmptyValue;
-import by.creepid.docsreporter.context.annotations.ImageField;
+import by.creepid.docsreporter.context.annotations.NullValue;
+import by.creepid.docsreporter.context.annotations.Image;
+import by.creepid.docsreporter.context.meta.MetadataFillerChain;
 import by.creepid.docsreporter.converter.images.ImageConverter;
 import java.lang.reflect.Field;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import by.creepid.docsreporter.formatter.DocTypesFormatter;
@@ -15,7 +14,6 @@ import by.creepid.docsreporter.utils.SimpleTypes;
 import fr.opensagres.xdocreport.document.images.ByteArrayImageProvider;
 import fr.opensagres.xdocreport.document.images.IImageProvider;
 import fr.opensagres.xdocreport.template.IContext;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.List;
@@ -26,8 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Component
 public class DocContextProcessor implements ContextProcessor {
 
-    private static final Class<? extends Annotation> imageAnnotatioin = ImageField.class;
-    private static final Class<? extends Annotation> emptyValueAnnotatioin = FieldEmptyValue.class;
+    private static final Class<? extends Annotation> imageAnnotatioin = Image.class;
+    private static final Class<? extends Annotation> emptyValueAnnotatioin = NullValue.class;
 
     private static final String EMPTY_FIELD_DEFAULT = "";
 
@@ -84,7 +82,7 @@ public class DocContextProcessor implements ContextProcessor {
             return;
         }
 
-        ImageField imageAnnot = (ImageField) imageAnnotatioin;
+        Image imageAnnot = (Image) imageAnnotatioin;
 
         boolean useImageSize = !imageAnnot.useTemplateSize();
 
@@ -159,20 +157,23 @@ public class DocContextProcessor implements ContextProcessor {
                             contextStr, field.getName());
 
                     if (field.isAnnotationPresent(imageAnnotatioin)) {
+
                         processImage(contextFieldname, (byte[]) fieldObj,
                                 field.getAnnotation(imageAnnotatioin));
 
                     } else if (field.isAnnotationPresent(emptyValueAnnotatioin) && fieldObj == null) {
 
-                        FieldEmptyValue emptyValueAnnot = (FieldEmptyValue) field.
+                        NullValue emptyValueAnnot = (NullValue) field.
                                 getAnnotation(emptyValueAnnotatioin);
                         String emptyValue = emptyValueAnnot.value();
 
                         processSimpleType(contextFieldname, emptyValue, fieldObj);
 
                     } else if (Enum.class.isAssignableFrom(field.getType())) {
+
                         Enum enumField = (Enum) fieldObj;
                         this.put(contextFieldname, enumField.name());
+
                     } else {
                         this.put(contextFieldname, fieldObj);
                     }
@@ -240,4 +241,5 @@ public class DocContextProcessor implements ContextProcessor {
     public void setImageConverter(ImageConverter imageConverter) {
         this.imageConverter = imageConverter;
     }
+
 }

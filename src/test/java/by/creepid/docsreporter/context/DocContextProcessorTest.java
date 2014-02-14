@@ -5,10 +5,10 @@
  */
 package by.creepid.docsreporter.context;
 
-import by.creepid.docsreporter.DeveloperWithPhoto;
-import by.creepid.docsreporter.Manager;
-import by.creepid.docsreporter.Project;
-import by.creepid.docsreporter.Role;
+import by.creepid.docsreporter.model.DeveloperWithPhoto;
+import by.creepid.docsreporter.model.Manager;
+import by.creepid.docsreporter.model.Project;
+import by.creepid.docsreporter.model.Role;
 import by.creepid.docsreporter.converter.images.ImageConverter;
 import by.creepid.docsreporter.formatter.DocTypesFormatter;
 import fr.opensagres.xdocreport.document.images.ByteArrayImageProvider;

@@ -6,12 +6,14 @@ package by.creepid.docsreporter.context.meta;
 
 import fr.opensagres.xdocreport.template.formatter.FieldsMetadata;
 import java.util.Map;
+import org.springframework.core.Ordered;
 
 /**
  *
  * @author mirash
  */
-public interface FieldsMetadataExtractor {
+public interface FieldsMetadataFiller extends Ordered {
 
-    public void fillMetadata(FieldsMetadata metadataToFill, Class<?> modelClass, String modelName, Map<String, Class<?>> iteratorNames);
+    public void fillMetadata(FieldsMetadata metadataToFill, Class<?> modelClass, String modelName, Map<String, Class<?>> iterationNames);
+
 }

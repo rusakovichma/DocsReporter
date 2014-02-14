@@ -94,6 +94,12 @@
         </dependency>
         
         <dependency>
+            <groupId>oro</groupId>
+            <artifactId>oro</artifactId>
+            <version>2.0.8</version>
+        </dependency>
+        
+        <dependency>
             <groupId>fr.opensagres.xdocreport</groupId>
             <artifactId>fr.opensagres.xdocreport.document.odt</artifactId>
             <version>${xdocreport.version}</version>
@@ -258,9 +264,9 @@
             <artifactId>java-image-scaling</artifactId>
             <version>0.8.5</version>
         </dependency>
-            
-            
         
+  
+                      
     </dependencies>
 	
     <repositories>

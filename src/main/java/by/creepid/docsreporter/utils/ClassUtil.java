@@ -16,8 +16,6 @@ public final class ClassUtil {
     private ClassUtil() {
     }
 
-    
-
     public static boolean isImplInterface(Class<?> target, Class<?> inter) {
         Class<?>[] interfaces = target.getInterfaces();
 

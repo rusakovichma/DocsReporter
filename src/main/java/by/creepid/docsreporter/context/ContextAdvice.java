@@ -5,16 +5,18 @@
  */
 package by.creepid.docsreporter.context;
 
+import by.creepid.docsreporter.context.fields.FieldsFilter;
 import by.creepid.docsreporter.utils.ClassUtil;
 import fr.opensagres.xdocreport.template.IContext;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.ReflectionUtils;
 
 /**
@@ -30,8 +32,8 @@ public class ContextAdvice implements MethodInterceptor {
 
     private static final Class<?> TARGET_CLASS = IContext.class;
     private static final List<Method> targetMethods = new CopyOnWriteArrayList();
-    private static List<String> templateSystemPrefixes
-            = Arrays.asList("___", "velocity", "freemarker", "list", "foreach");
+
+    private final FieldsFilter fieldsFilter;
 
     static {
         targetMethods.add(ReflectionUtils.findMethod(TARGET_CLASS, PUT_METHOD_NAME, String.class, Object.class));
@@ -39,24 +41,14 @@ public class ContextAdvice implements MethodInterceptor {
         targetMethods.add(ReflectionUtils.findMethod(TARGET_CLASS, PUT_MAP_METHOD_NAME, Map.class));
         targetMethods.add(ReflectionUtils.findMethod(TARGET_CLASS, GET_MAP_METHOD_NAME, Map.class));
 
-        templateSystemPrefixes = Collections.unmodifiableList(templateSystemPrefixes);
     }
     private final ContextProcessor processor;
 
     public ContextAdvice(IContext context, ContextProcessor processor) {
         this.processor = processor;
         processor.setContext(context);
-    }
 
-    protected boolean isTemplateSystemName(String str) {
-
-        for (String prefix : templateSystemPrefixes) {
-            if (str.startsWith(prefix)) {
-                return true;
-            }
-        }
-
-        return false;
+        fieldsFilter = AppContextManager.getbean(FieldsFilter.class);
     }
 
     private boolean ckeckInvokedMethod(Method invoked) {
@@ -82,7 +74,7 @@ public class ContextAdvice implements MethodInterceptor {
         String str = null;
         if (args[0] instanceof String) {
             str = (String) args[0];
-            if (isTemplateSystemName(str)) {
+            if (fieldsFilter.isInFilterList(str)) {
                 return invocation.proceed();
             }
         }

@@ -38,25 +38,16 @@
         
         <bean class="by.creepid.docsreporter.converter.OdfPdfConverterAdapter"/>
     </util:list>
-       
+    
+    <bean id="fieldsFilter" class="by.creepid.docsreporter.context.fields.FieldsFilterImpl"/>    
+             
     <bean id="templateEngineKind" class="fr.opensagres.xdocreport.template.TemplateEngineKind"
           factory-method="valueOf">
         <constructor-arg>
             <value>Velocity</value>
         </constructor-arg>
     </bean>
-    
-    <bean id="metadataExtractor" class="by.creepid.docsreporter.context.meta.FieldsMetadataExtractorImpl">
-        <property name="behaviour">
-            <bean class="fr.opensagres.xdocreport.template.formatter.NullImageBehaviour"
-                  factory-method="valueOf">
-                <constructor-arg>
-                    <value>KeepImageTemplate</value>
-                </constructor-arg>
-            </bean>
-        </property>
-    </bean>
-    
+        
     <bean id="contextProcessor" class="by.creepid.docsreporter.context.DocContextProcessor"
           scope="prototype" lazy-init="true" depends-on="imageConverter">
         <property name="emptyField">

@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package by.creepid.docsreporter;
+package by.creepid.docsreporter.model;
 
-import by.creepid.docsreporter.context.annotations.ImageField;
+import by.creepid.docsreporter.context.annotations.Image;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class DeveloperWithPhoto extends Developer {
 
-    @ImageField(bookmarks = {"photo1", "photo2"}, width = 100)
+    @Image(bookmarks = {"photo1", "photo2"}, width = 100)
     private byte[] photo;
 
     public DeveloperWithPhoto(String name, String lastName, String mail, Date birthDate, byte[] photo, List<Role> roles) {

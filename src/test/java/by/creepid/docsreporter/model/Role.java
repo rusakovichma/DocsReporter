@@ -3,16 +3,22 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-package by.creepid.docsreporter;
+package by.creepid.docsreporter.model;
 
 /**
  *
  * @author rusakovich
  */
-public enum WorkingStatus {
-    fullTime,
-    halfTime,
-    freelance,
-    remote
+public class Role {
+
+    private final String name;
+
+    public Role(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
 }

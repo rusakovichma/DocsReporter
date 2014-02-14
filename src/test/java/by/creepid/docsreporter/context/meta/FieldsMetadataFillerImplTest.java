@@ -4,8 +4,8 @@
  */
 package by.creepid.docsreporter.context.meta;
 
-import by.creepid.docsreporter.DeveloperWithPhoto;
-import by.creepid.docsreporter.Project;
+import by.creepid.docsreporter.model.DeveloperWithPhoto;
+import by.creepid.docsreporter.model.Project;
 import fr.opensagres.xdocreport.template.formatter.FieldMetadata;
 import fr.opensagres.xdocreport.template.formatter.FieldsMetadata;
 import java.util.Collection;
@@ -21,12 +21,12 @@ import org.junit.Test;
  *
  * @author mirash
  */
-public class FieldsMetadataExtractorImplTest {
+public class FieldsMetadataFillerImplTest {
 
-    private FieldsMetadataExtractorImpl instance;
+    private ListMetadataFiller instance;
 
-    public FieldsMetadataExtractorImplTest() {
-        instance = new FieldsMetadataExtractorImpl();
+    public FieldsMetadataFillerImplTest() {
+        instance = new ListMetadataFiller();
     }
 
     @BeforeClass
@@ -74,7 +74,6 @@ public class FieldsMetadataExtractorImplTest {
         String modelName = "project";
         Map<String, Class<?>> iteratorNames = new HashMap<String, Class<?>>();
         iteratorNames.put("dev", DeveloperWithPhoto.class);
-        FieldsMetadataExtractor instance = new FieldsMetadataExtractorImpl();
         instance.fillMetadata(metadataToFill, modelClass, modelName, iteratorNames);
         Collection<FieldMetadata> metas = metadataToFill.getFieldsAsImage();
         for (FieldMetadata meta : metas) {

@@ -5,12 +5,12 @@
  */
 package by.creepid.docsreporter.context.validation;
 
+import by.creepid.docsreporter.context.AppContextManager;
+import by.creepid.docsreporter.context.fields.FieldsFilter;
 import by.creepid.docsreporter.utils.FieldHelper;
 import fr.opensagres.xdocreport.template.FieldExtractor;
 import fr.opensagres.xdocreport.template.FieldsExtractor;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,17 +25,13 @@ public class ReportFieldsValidator implements Validator {
 
     private static final String FIELD_INVALID_MESSAGE = "Incalid field name";
     private static final String FIELD_LIST_INVALID_MESSAGE = "Invalid list field name";
-    private static List<String> templateSystemPrefixes
-            = Arrays.asList("{", "___", "velocity", "freemarker", "list", "foreach");
 
     private final Class<?> modelClass;
     private final String modelName;
     private final List<String> fieldHierarchy;
     private final Map<String, Class<?>> iteratorNames;
 
-    static {
-        templateSystemPrefixes = Collections.unmodifiableList(templateSystemPrefixes);
-    }
+    private final FieldsFilter fieldsFilter;
 
     public ReportFieldsValidator(Class<?> modelClass, String modelName, Map<String, Class<?>> iteratorNames) {
         this.modelClass = modelClass;
@@ -62,25 +58,12 @@ public class ReportFieldsValidator implements Validator {
 
         fieldHierarchy.addAll(synonymPathes);
 
-        for (String field : fieldHierarchy) {
-            System.out.println(field);
-        }
+        this.fieldsFilter = AppContextManager.getbean(FieldsFilter.class);
     }
 
     @Override
     public boolean supports(Class<?> clazz) {
         return FieldsExtractor.class.isAssignableFrom(clazz);
-    }
-
-    protected boolean isTemplateSystemName(String str) {
-
-        for (String prefix : templateSystemPrefixes) {
-            if (str.startsWith(prefix)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     @Override
@@ -91,8 +74,8 @@ public class ReportFieldsValidator implements Validator {
             List<FieldExtractor> fieldsExtractor = extractor.getFields();
             for (FieldExtractor fieldExtractor : fieldsExtractor) {
                 String name = fieldExtractor.getName();
-                System.out.println("----" + name);
-                if (!isTemplateSystemName(name) && !fieldHierarchy.contains(name)) {
+
+                if (!fieldsFilter.isInFilterList(name) && !fieldHierarchy.contains(name)) {
 
                     String message = (fieldExtractor.isList())
                             ? FIELD_LIST_INVALID_MESSAGE

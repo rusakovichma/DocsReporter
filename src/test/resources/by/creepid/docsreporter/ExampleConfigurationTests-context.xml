@@ -10,16 +10,16 @@
             <value>src/test/resources/DocxProjectWithVelocity.docx</value>
         </property>
         <property name="modelClass">
-            <value>by.creepid.docsreporter.Project</value>
+            <value>by.creepid.docsreporter.model.Project</value>
         </property> 
         <property name="modelName" value="project"/>
         <property name="iteratorNames">
             <map>
                 <entry key="developer">
-                    <value>by.creepid.docsreporter.DeveloperWithPhoto</value>
+                    <value>by.creepid.docsreporter.model.DeveloperWithPhoto</value>
                 </entry>
                 <entry key="role">
-                    <value>by.creepid.docsreporter.Role</value>
+                    <value>by.creepid.docsreporter.model.Role</value>
                 </entry>
             </map>
         </property>

@@ -15,7 +15,16 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface FieldEmptyValue {
+public @interface Image {
 
-    public String value() default "";
+    public String[] bookmarks();
+
+    public boolean useTemplateSize() default true;
+
+    public boolean useRatioSize() default true;
+
+    public float width() default Float.MIN_VALUE;
+
+    public float height() default Float.MIN_VALUE;
+
 }

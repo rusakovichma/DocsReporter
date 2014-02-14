@@ -2,9 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package by.creepid.docsreporter;
+package by.creepid.docsreporter.model;
 
-import by.creepid.docsreporter.context.annotations.FieldEmptyValue;
+import by.creepid.docsreporter.context.annotations.NullValue;
+import by.creepid.docsreporter.context.annotations.TextStyling;
+import fr.opensagres.xdocreport.core.document.SyntaxKind;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,9 +17,10 @@ import java.util.List;
  */
 public class Developer {
 
+    @TextStyling(syntaxKind = SyntaxKind.Html)
     private String name;
     private String lastName;
-    @FieldEmptyValue(value = "Enter your mail, please")
+    @NullValue(value = "Enter your mail, please")
     private String mail;
     private Date birthDate;
     private List<Role> roles;

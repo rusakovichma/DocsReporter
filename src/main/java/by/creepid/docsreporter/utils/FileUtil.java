@@ -3,22 +3,23 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package by.creepid.docsreporter;
+package by.creepid.docsreporter.utils;
+
+import java.io.File;
 
 /**
  *
  * @author rusakovich
  */
-public class Role {
+public final class FileUtil {
 
-    private final String name;
-
-    public Role(String name) {
-        this.name = name;
+    private FileUtil() {
     }
 
-    public String getName() {
-        return name;
+    public static boolean isFileExist(String path) {
+        File temp = new File(path);
+
+        return temp.exists();
     }
 
 }

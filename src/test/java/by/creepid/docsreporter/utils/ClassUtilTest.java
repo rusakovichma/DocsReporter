@@ -4,7 +4,7 @@
  */
 package by.creepid.docsreporter.utils;
 
-import by.creepid.docsreporter.Project;
+import by.creepid.docsreporter.model.Project;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

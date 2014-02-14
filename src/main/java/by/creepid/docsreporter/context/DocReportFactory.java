@@ -1,5 +1,6 @@
 package by.creepid.docsreporter.context;
 
+import by.creepid.docsreporter.utils.FileUtil;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,9 +26,7 @@ public final class DocReportFactory {
             throw new IllegalArgumentException("Invalid templatePath");
         }
 
-        File temp = new File(templatePath);
-
-        if (!temp.exists()) {
+        if (!FileUtil.isFileExist(templatePath)) {
             throw new RuntimeException("Template file not exist: [" + templatePath + "]");
         }
 
