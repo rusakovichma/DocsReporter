@@ -1,3 +1,49 @@
-Documents reporter sample using XDocReport and Spring Framework
+Documents reporter in docx, odt, pdf, xhtml and pptx formats using Java POJO.
+Supported templates formats: docx and odt
 
-Need Apacke Maven to be installed http://maven.apache.org/download.cgi
+Using technologies: Maven, Spring Framework, DocxReporter, Apache Velocity, Freemarker. Testing: JUnit, Mockito
+
+Example:
+We have model tree (see in https://github.com/creepid/DocsReporter/tree/master/src/test/java/by/creepid/docsreporter/model):
+
+public class Project {
+
+    private String name;
+    private Date date;
+    private BigDecimal price;
+    private String author = null;
+    private int stuffSize;
+    private Manager manager;
+    private List<DeveloperWithPhoto> developers;
+    private byte[] logo;
+
+    //constructors, getters and setters
+}
+
+where:
+
+public class Developer {
+
+    private String name;
+    private String lastName;
+    private String mail;
+    private Date birthDate;
+    private List<Role> roles;
+    private WorkingStatus status = WorkingStatus.fullTime;
+    
+    //constructors, getters and setters
+
+}
+
+public class DeveloperWithPhoto extends Developer {
+
+    private byte[] photo;
+    
+    //constructors, getters and setters
+
+}
+
+And template in .docx (https://github.com/creepid/DocsReporter/blob/master/src/test/resources/DocxProjectWithVelocity.docx for example):
+
+
+
