@@ -45,7 +45,7 @@ public final class DocReportFactory {
 
             report = XDocReportRegistry.getRegistry().
                     loadReport(in, templateEngineKind);
-
+            
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

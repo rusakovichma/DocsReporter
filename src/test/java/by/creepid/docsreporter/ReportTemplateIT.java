@@ -28,7 +28,7 @@ public class ReportTemplateIT extends AbstractDocsReporterIT {
     @Autowired
     private ReportTemplate reportTemplate;
 
-    private static final String ext = ".pdf";
+    private static final String ext = ".htm";
 
     private Project project;
 
