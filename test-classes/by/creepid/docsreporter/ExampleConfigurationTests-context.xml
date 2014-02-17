@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <import resource="classpath:/META-INF/spring/docsreporter-context.xml"/> 
+        
+    <bean id="reportTemplate" parent="reportTemplateBase">
+        <property name="templatePath">
+            <value>src/test/resources/DocxProjectWithVelocity.docx</value>
+        </property>
+        <property name="modelClass">
+            <value>by.creepid.docsreporter.model.Project</value>
+        </property> 
+        <property name="modelName" value="project"/>
+        <property name="iteratorNames">
+            <map>
+                <entry key="developer">
+                    <value>by.creepid.docsreporter.model.DeveloperWithPhoto</value>
+                </entry>
+                <entry key="role">
+                    <value>by.creepid.docsreporter.model.Role</value>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+</beans>
