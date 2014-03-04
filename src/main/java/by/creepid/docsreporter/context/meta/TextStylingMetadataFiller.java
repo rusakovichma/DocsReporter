@@ -39,6 +39,10 @@ public class TextStylingMetadataFiller implements FieldsMetadataFiller {
 
             metadataToFill.addFieldAsTextStyling(fieldPath, syntax);
 
+            if (iterationNames == null) {
+                continue;
+            }
+
             Class declaringClass = entry.getValue().getDeclaringClass();
 
             Set<Map.Entry<String, Class<?>>> iterEntries = iterationNames.entrySet();

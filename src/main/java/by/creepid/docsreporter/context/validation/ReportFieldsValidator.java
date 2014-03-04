@@ -33,15 +33,11 @@ public class ReportFieldsValidator implements Validator {
 
     private final FieldsFilter fieldsFilter;
 
-    public ReportFieldsValidator(Class<?> modelClass, String modelName, Map<String, Class<?>> iteratorNames) {
-        this.modelClass = modelClass;
-        this.modelName = modelName;
-        this.iteratorNames = iteratorNames;
-
-        fieldHierarchy = FieldHelper.getFieldHierarchy(modelClass, modelName);
+    private void addSynonyms() {
+        Set<Map.Entry<String, Class<?>>> iterEntries = iteratorNames.entrySet();
 
         List<String> synonymPathes = new ArrayList<>();
-        Set<Map.Entry<String, Class<?>>> iterEntries = iteratorNames.entrySet();
+
         for (Map.Entry<String, Class<?>> entry : iterEntries) {
             List<String> pathes = FieldHelper.getFieldPath(entry.getValue(), modelClass, modelName);
 
@@ -57,6 +53,18 @@ public class ReportFieldsValidator implements Validator {
         }
 
         fieldHierarchy.addAll(synonymPathes);
+    }
+
+    public ReportFieldsValidator(Class<?> modelClass, String modelName, Map<String, Class<?>> iteratorNames) {
+        this.modelClass = modelClass;
+        this.modelName = modelName;
+        this.iteratorNames = iteratorNames;
+
+        fieldHierarchy = FieldHelper.getFieldHierarchy(modelClass, modelName);
+
+        if (iteratorNames != null) {
+            addSynonyms();
+        }
 
         this.fieldsFilter = AppContextManager.getbean(FieldsFilter.class);
     }
