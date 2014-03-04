@@ -1,7 +1,5 @@
 package by.creepid.docsreporter.context;
 
-import by.creepid.docsreporter.utils.FileUtil;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,6 +12,7 @@ import fr.opensagres.xdocreport.core.XDocReportException;
 import fr.opensagres.xdocreport.document.IXDocReport;
 import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
 import fr.opensagres.xdocreport.template.TemplateEngineKind;
+import org.springframework.core.io.Resource;
 
 @Component
 public final class DocReportFactory {
@@ -21,13 +20,13 @@ public final class DocReportFactory {
     @Autowired
     private TemplateEngineKind templateEngineKind;
 
-    private void checkTemplate(String templatePath) {
-        if (templatePath == null) {
+    private void checkTemplate(Resource template) {
+        if (template == null) {
             throw new IllegalArgumentException("Invalid templatePath");
         }
 
-        if (!FileUtil.isFileExist(templatePath)) {
-            throw new RuntimeException("Template file not exist: [" + templatePath + "]");
+        if (!template.exists()) {
+            throw new RuntimeException("Template file not exist: [" + template.getFilename() + "]");
         }
 
         if (templateEngineKind == null) {
@@ -35,17 +34,17 @@ public final class DocReportFactory {
         }
     }
 
-    public IXDocReport buildReport(String templatePath) {
-        checkTemplate(templatePath);
+    public IXDocReport buildReport(Resource template) {
+        checkTemplate(template);
 
         IXDocReport report = null;
 
         try {
-            InputStream in = new FileInputStream(templatePath);
+            InputStream in = new FileInputStream(template.getFile());
 
             report = XDocReportRegistry.getRegistry().
                     loadReport(in, templateEngineKind);
-            
+
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

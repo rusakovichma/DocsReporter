@@ -14,6 +14,8 @@
 
     <context:annotation-config />
     <context:component-scan base-package="by.creepid.docsreporter" />
+    
+    <context:property-placeholder location="classpath:driver.properties" />
 
     <util:list id="formatters">
         <bean class="by.creepid.docsreporter.formatter.DateDocTypesFormatter" />

@@ -2,7 +2,6 @@ package by.creepid.docsreporter;
 
 import by.creepid.docsreporter.context.ContextFactory;
 import by.creepid.docsreporter.context.DocReportFactory;
-import by.creepid.docsreporter.context.meta.FieldsMetadataFiller;
 import by.creepid.docsreporter.context.meta.MetadataFillerChain;
 import by.creepid.docsreporter.context.validation.ReportFieldsValidator;
 import by.creepid.docsreporter.context.validation.ReportProcessingException;
@@ -21,20 +20,23 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ResourceLoaderAware;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 @Service
-public class DocReportTemplate implements ReportTemplate {
+public class DocReportTemplate implements ReportTemplate, ResourceLoaderAware {
 
-    private static final String SAX_DRIVER_PROP = "org.xml.sax.driver";
+    @Value("${driver.sax}")
+    private String saxDriver;
 
     @Autowired
     private DocReportFactory docReportFactory;
@@ -52,7 +54,10 @@ public class DocReportTemplate implements ReportTemplate {
 
     private Class<?> modelClass;
     private String modelName;
+
     private String templatePath;
+    private org.springframework.core.io.Resource templateResource;
+
     private DocFormat templateFormat;
 
     private FieldsMetadata metadata;
@@ -62,12 +67,17 @@ public class DocReportTemplate implements ReportTemplate {
 
     private volatile Errors fieldErrors;
 
+    private ResourceLoader resourceLoader;
+
     public DocReportTemplate() {
         metadata = new FieldsMetadata();
     }
 
     public void initContext() {
-        templateFormat = getFormat(templatePath);
+        templateResource = resourceLoader.getResource(templatePath);
+
+        templateFormat = getFormat(templateResource.getFilename());
+
         if (templateFormat == UNSUPPORTED) {
             throw new IllegalStateException("Given template format is not supported!");
         }
@@ -76,7 +86,7 @@ public class DocReportTemplate implements ReportTemplate {
             throw new IllegalStateException("Model class must be set!");
         }
 
-        docReport = docReportFactory.buildReport(templatePath);
+        docReport = docReportFactory.buildReport(templateResource);
         contextLocal = new ThreadLocal<IContext>();
 
         if (metadataFillerChain != null) {
@@ -99,8 +109,8 @@ public class DocReportTemplate implements ReportTemplate {
     }
 
     private void clearSAXDriverProperty() {
-        if (System.getProperty(SAX_DRIVER_PROP) != null) {
-            System.clearProperty(SAX_DRIVER_PROP);
+        if (System.getProperty(saxDriver) != null) {
+            System.clearProperty(saxDriver);
         }
     }
 
@@ -194,11 +204,13 @@ public class DocReportTemplate implements ReportTemplate {
     }
 
     public String getTemplatePath() {
-        return templatePath;
-    }
+        try {
+            return templateResource.getURL().getPath();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 
-    public void setTemplatePath(String templatePath) {
-        this.templatePath = templatePath;
+        throw new IllegalStateException("Exception while getting the file");
     }
 
     public void setDocConverters(List<DocConverterAdapter> docConverters) {
@@ -249,4 +261,16 @@ public class DocReportTemplate implements ReportTemplate {
         this.metadataFillerChain = metadataFillerChain;
     }
 
+    @Override
+    public void setResourceLoader(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
+
+    public void setTemplatePath(String templatePath) {
+        this.templatePath = templatePath;
+    }
+
+    public void setSaxDriver(String saxDriver) {
+        this.saxDriver = saxDriver;
+    }
 }
