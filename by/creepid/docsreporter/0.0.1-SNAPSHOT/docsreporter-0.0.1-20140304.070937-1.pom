@@ -21,21 +21,7 @@
         <spring.framework.version>3.0.6.RELEASE</spring.framework.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>	
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.7</version>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.8.4</version>
-            <scope>test</scope>
-        </dependency>
-            
+    <dependencies>            
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -267,9 +253,42 @@
             <version>0.8.5</version>
         </dependency>
         
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.7</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.8.4</version>
+            <scope>test</scope>
+        </dependency>
+        
 
                                
     </dependencies>
+    
+    <profiles>
+        <profile>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <id>development</id>
+            <properties>
+                <skipTests>false</skipTests>
+            </properties>
+            
+        </profile>
+        <profile>
+            <id>skipTests</id>
+            <properties>
+                <skipTests>true</skipTests>
+            </properties>
+            
+        </profile>
+    </profiles>
 	
     <repositories>
         <repository>
@@ -341,7 +360,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.16</version>
                 <configuration>
-                    <skipTests>true</skipTests>
+                    <skipTests>${skipTests}</skipTests>
                     <forkMode>once</forkMode>
                     <argLine>-Xmx512m -Xms128m -Xss2m</argLine>
                 </configuration>
