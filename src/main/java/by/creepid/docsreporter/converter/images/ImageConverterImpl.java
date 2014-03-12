@@ -108,7 +108,7 @@ public class ImageConverterImpl implements ImageConverter {
      * @param photo - photo bytes (base64 encoding)
      * @return
      */
-    public boolean isPhoto(byte[] photo) {
+    public boolean isImage(byte[] photo) {
         boolean result = (photo == null)
                 ? false
                 : (getImageForm(photo) != ImageForm.unknown);
@@ -124,7 +124,14 @@ public class ImageConverterImpl implements ImageConverter {
     private String photoHeaderHexRepresent(byte[] photoBytes) {
         StringBuilder builder = new StringBuilder();
 
-        for (int i = 0; i < IMAGE_HEADER_BLOCK_SIZE; i++) {
+        if (photoBytes == null) {
+            return builder.toString();
+        }
+
+        int len = (photoBytes.length < IMAGE_HEADER_BLOCK_SIZE)
+                ? photoBytes.length : IMAGE_HEADER_BLOCK_SIZE;
+
+        for (int i = 0; i < len; i++) {
             String hex = Integer.toHexString(0xFF & photoBytes[i]);
 
             if (hex.length() == 1) {

@@ -78,7 +78,7 @@ public class DocContextProcessor implements ContextProcessor {
 
     private void processImage(String imageMark, byte[] image, Annotation imageAnnotatioin) {
 
-        if (!imageConverter.isPhoto(image) || !imageConverter.isSupportedImageType(image)) {
+        if (!imageConverter.isImage(image) || !imageConverter.isSupportedImageType(image)) {
             return;
         }
 

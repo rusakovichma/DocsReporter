@@ -161,10 +161,10 @@ public class DocContextProcessorTest {
 
         ImageConverter imageConverter = mock(ImageConverter.class);
 
-        when(imageConverter.isPhoto(any(byte[].class))).thenReturn(Boolean.TRUE);
+        when(imageConverter.isImage(any(byte[].class))).thenReturn(Boolean.TRUE);
         when(imageConverter.isSupportedImageType(any(byte[].class))).thenReturn(Boolean.TRUE);
 
-        when(imageConverter.isPhoto(null)).thenReturn(Boolean.FALSE);
+        when(imageConverter.isImage(null)).thenReturn(Boolean.FALSE);
         when(imageConverter.isSupportedImageType(null)).thenReturn(Boolean.FALSE);
 
         when(imageConverter.convertPhotoToPreview(logo, 200, Integer.MIN_VALUE)).thenReturn(logoPreview);

@@ -35,7 +35,7 @@ public interface ImageConverter {
      * @param photo - photo bytes (base64 encoding)
      * @return
      */
-    public boolean isPhoto(byte[] photo);
+    public boolean isImage(byte[] photo);
 
     /**
      * Preview photos convert method

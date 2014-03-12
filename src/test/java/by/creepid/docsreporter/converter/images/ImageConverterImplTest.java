@@ -92,7 +92,7 @@ public class ImageConverterImplTest {
     public void testIsPhoto() {
         System.out.println("****** isPhoto ********");
         boolean expResult = true;
-        boolean result = instance.isPhoto(photo);
+        boolean result = instance.isImage(photo);
         assertEquals(expResult, result);
     }
 
