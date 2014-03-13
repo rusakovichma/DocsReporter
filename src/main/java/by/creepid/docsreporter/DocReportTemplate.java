@@ -1,6 +1,7 @@
 package by.creepid.docsreporter;
 
 import by.creepid.docsreporter.context.ContextFactory;
+import by.creepid.docsreporter.context.DocContextProcessor;
 import by.creepid.docsreporter.context.DocReportFactory;
 import by.creepid.docsreporter.context.meta.MetadataFillerChain;
 import by.creepid.docsreporter.context.validation.ReportFieldsValidator;
@@ -20,13 +21,17 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -167,10 +172,11 @@ public class DocReportTemplate implements ReportTemplate, ResourceLoaderAware {
         try {
             validate(model);
 
-            getContext().put(modelName, model);
-
+            IContext context = getContext();
+            context.put(modelName, model);
+                    
             synchronized (DocReportTemplate.class) {
-                docReport.process(getContext(), out);
+                docReport.process(context, out);
             }
 
             if (targetFormat != templateFormat) {

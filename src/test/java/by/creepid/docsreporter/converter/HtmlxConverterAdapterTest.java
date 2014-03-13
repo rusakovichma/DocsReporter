@@ -11,14 +11,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.junit.After;
+import java.lang.reflect.Method;
 import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.util.ReflectionUtils;
+import static org.junit.Assert.*;
+import org.junit.BeforeClass;
 
 /**
  *
@@ -28,7 +28,8 @@ public class HtmlxConverterAdapterTest {
 
     private static final String inPath = "src/test/resources/DocxProjectWithVelocity.docx";
     private static final String outPath = "src/test/resources/DocxProjectWithVelocity.htm";
-    private DocConverterAdapter converter;
+    private PoiXhtmlConverterAdapter converter;
+    private static File outFile;
 
     public HtmlxConverterAdapterTest() {
         converter = new PoiXhtmlConverterAdapter() {
@@ -38,40 +39,41 @@ public class HtmlxConverterAdapterTest {
                 return new ImageExtractObservableImpl();
             }
         };
+
+        Method propSetMethod = ReflectionUtils.findMethod(PoiXhtmlConverterAdapter.class, "afterPropertiesSet");
+        ReflectionUtils.invokeMethod(propSetMethod, converter);
     }
 
     @BeforeClass
     public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
+        outFile = new File(outPath);
+        outFile.deleteOnExit();
     }
 
     /**
      * Test of getTargetFormat method, of class HtmlxDocConverter.
      */
     @Test
-    public void testGetTargetFormat() {
-        System.out.println(converter.getSourceFormat());
-        System.out.println(converter.getTargetFormat());
+    public void testGetTargetFormat() throws IOException {
+        FileOutputStream newOut = null;
+
         try {
             InputStream in = new FileInputStream(new File(inPath));
+
             ByteArrayOutputStream out = (ByteArrayOutputStream) converter.convert(DocFormat.getFormat(outPath), in);
 
-            FileOutputStream newOut = new FileOutputStream(new File(outPath));
+            newOut = new FileOutputStream(outFile);
             out.writeTo(newOut);
 
         } catch (Exception ex) {
-            Logger.getLogger(PdfConverterAdapterTest.class.getName()).log(Level.SEVERE, null, ex);
+            fail("Cannot convert template");
+            ex.printStackTrace();
+        } finally {
+            if (newOut != null) {
+                newOut.close();
+            }
         }
+
+        assertTrue(outFile.exists() && outFile.length() != 0l);
     }
 }

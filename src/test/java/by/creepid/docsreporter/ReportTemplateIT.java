@@ -45,7 +45,6 @@ public class ReportTemplateIT extends AbstractDocsReporterIT {
 
             @Override
             public void getImage(byte[] content, String path) {
-                System.out.println("Save photo in: [" + path + "]");
                 OutputStream outFile = null;
                 try {
 
@@ -77,20 +76,19 @@ public class ReportTemplateIT extends AbstractDocsReporterIT {
         try {
             String docName = targetFolder + "out_" + getTimestamp() + ext;
 
-            Map<String, byte[]> map = new HashMap<>();
-
             out = (ByteArrayOutputStream) reportTemplate.generateReport(DocFormat.getFormat(docName), project, observer);
 
             File file = new File(docName);
             file.createNewFile();
+            file.deleteOnExit();
+            
             outFile = new FileOutputStream(file);
 
             out.writeTo(outFile);
-            if (!new File(docName).exists()) {
+            if (!file.exists() || file.length() == 0l) {
                 fail("Report not generated");
             }
-            outFile.close();
-
+                       
         } catch (ReportProcessingException ex) {
             ex.printStackTrace();
 
@@ -114,5 +112,7 @@ public class ReportTemplateIT extends AbstractDocsReporterIT {
                 ex.printStackTrace();
             }
         }
+        
+        
     }
 }

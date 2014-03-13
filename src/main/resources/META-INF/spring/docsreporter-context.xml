@@ -38,7 +38,9 @@
             <lookup-method name="createImageExtractObservable" bean="imageExtractObservable"/>
         </bean>
         
-        <bean class="by.creepid.docsreporter.converter.OdfPdfConverterAdapter"/>
+        <bean class="by.creepid.docsreporter.converter.OdfPdfConverterAdapter">
+            <property name="encoding" value="windows-1251"/>
+        </bean>
     </util:list>
     
     <bean id="fieldsFilter" class="by.creepid.docsreporter.context.fields.FieldsFilterImpl"/>    

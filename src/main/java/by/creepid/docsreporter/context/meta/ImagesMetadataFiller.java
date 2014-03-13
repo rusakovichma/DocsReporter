@@ -27,7 +27,7 @@ public class ImagesMetadataFiller implements FieldsMetadataFiller {
 
     private static final Class<? extends Annotation> imageAnnotation = Image.class;
 
-    private static final NullImageBehaviour DEFAULT_BEHAVIOR = NullImageBehaviour.KeepImageTemplate;
+    private static final NullImageBehaviour DEFAULT_BEHAVIOR = NullImageBehaviour.RemoveImageTemplate;
     private NullImageBehaviour behaviour = DEFAULT_BEHAVIOR;
 
     protected List<String> getAliases(Class<?> iterClass, Map<String, Class<?>> iteratorNames) {
@@ -77,7 +77,7 @@ public class ImagesMetadataFiller implements FieldsMetadataFiller {
 
                     metadataToFill.addFieldAsImage(
                             bookmark,
-                            FieldHelper.getFieldPath(field.getDeclaringClass().getSimpleName(), field.getName()));
+                            FieldHelper.getFieldPath(field.getDeclaringClass().getSimpleName(), field.getName()), behaviour);
                 }
             }
         }
@@ -89,7 +89,7 @@ public class ImagesMetadataFiller implements FieldsMetadataFiller {
 
             String[] bookmarks = imageAnnot.bookmarks();
             for (String bookmark : bookmarks) {
-                metadataToFill.addFieldAsImage(bookmark, entry.getKey());
+                metadataToFill.addFieldAsImage(bookmark, entry.getKey(), behaviour);
             }
 
         }

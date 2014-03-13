@@ -158,8 +158,8 @@ public class DocContextProcessor implements ContextProcessor {
 
                     if (field.isAnnotationPresent(imageAnnotatioin)) {
 
-                        processImage(contextFieldname, (byte[]) fieldObj,
-                                field.getAnnotation(imageAnnotatioin));
+                            processImage(contextFieldname, (byte[]) fieldObj,
+                                    field.getAnnotation(imageAnnotatioin));
 
                     } else if (field.isAnnotationPresent(emptyValueAnnotatioin) && fieldObj == null) {
 
@@ -211,9 +211,9 @@ public class DocContextProcessor implements ContextProcessor {
         } else if (obj instanceof Collection) {
             processCollection(string, obj);
         } else {
-            processObjectFields(string, obj);
+            processObjectFields(string, obj);                   
         }
-
+        
         return obj;
     }
 
@@ -242,4 +242,4 @@ public class DocContextProcessor implements ContextProcessor {
         this.imageConverter = imageConverter;
     }
 
-}
+    }

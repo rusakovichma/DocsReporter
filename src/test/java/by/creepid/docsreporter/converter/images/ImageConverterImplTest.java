@@ -35,7 +35,7 @@ public class ImageConverterImplTest {
     private static Path path;
     private byte[] photo;
 
-    ImageConverter instance;
+    ImageConverterImpl instance;
 
     public ImageConverterImplTest() {
         instance = new ImageConverterImpl();
@@ -83,6 +83,21 @@ public class ImageConverterImplTest {
         boolean expResult = true;
         boolean result = instance.isSupportedImageType(photo);
         assertEquals(expResult, result);
+
+        byte[] bytes = new String("").getBytes();
+        result = instance.isSupportedImageType(bytes);
+        assertFalse("Empty string is processed invalid", result);
+
+        bytes = new String().getBytes();
+        result = instance.isSupportedImageType(bytes);
+        assertFalse("Non string is processed invalid", result);
+
+        bytes = null;
+        result = instance.isSupportedImageType(bytes);
+        assertFalse("Null is processed invalid", result);
+        
+        
+
     }
 
     /**
@@ -91,9 +106,20 @@ public class ImageConverterImplTest {
     @Test
     public void testIsPhoto() {
         System.out.println("****** isPhoto ********");
-        boolean expResult = true;
         boolean result = instance.isImage(photo);
-        assertEquals(expResult, result);
+        assertTrue("Image is invalid", result);
+
+        byte[] bytes = new String("").getBytes();
+        result = instance.isImage(bytes);
+        assertFalse("Empty string is processed invalid", result);
+
+        bytes = new String().getBytes();
+        result = instance.isImage(bytes);
+        assertFalse("Non string is processed invalid", result);
+
+        bytes = null;
+        result = instance.isImage(bytes);
+        assertFalse("Null is processed invalid", result);
     }
 
     /**
@@ -134,6 +160,17 @@ public class ImageConverterImplTest {
         System.out.println("***** getImageForm *******");
         ImageForm form = instance.getImageForm(photo);
         assertNotSame(ImageForm.unknown, form);
-        System.out.println("FORMAT: " + form);
+
+        byte[] bytes = new String("").getBytes();
+        form = instance.getImageForm(bytes);
+        assertSame(ImageForm.unknown, form);
+
+        bytes = new byte[0];
+        form = instance.getImageForm(bytes);
+        assertSame(ImageForm.unknown, form);
+
+        bytes = null;
+        form = instance.getImageForm(bytes);
+        assertSame(ImageForm.unknown, form);
     }
 }
