@@ -42,7 +42,9 @@ public abstract class AbstractDocsReporterIT {
 
     protected Project createProjectSample() {
         Project project = new Project("project name", new Date(), new BigDecimal("123.123"));
-
+        
+        project.setUrl("https://github.com/creepid/DocsReporter");
+        
         Manager manager = new Manager("Mike", "<b>Green</b>", 5);
         String string = "January 2, 1982";
         Date birthDate = null;

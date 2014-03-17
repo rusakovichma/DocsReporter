@@ -1,10 +1,10 @@
 package by.creepid.docsreporter.model;
 
 import by.creepid.docsreporter.context.annotations.Image;
-import by.creepid.docsreporter.utils.ClassUtil;
+import by.creepid.docsreporter.context.annotations.TextStyling;
+import fr.opensagres.xdocreport.core.document.SyntaxKind;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -19,6 +19,8 @@ public class Project {
     private List<DeveloperWithPhoto> developers;
     @Image(bookmarks = {"logo"}, width = 200)
     private byte[] logo;
+    @TextStyling(syntaxKind = SyntaxKind.Html, syntaxWithDirective = true)
+    private String url;
 
     public Project() {
         developers = new ArrayList<>();
@@ -97,5 +99,13 @@ public class Project {
 
     public void setLogo(byte[] logo) {
         this.logo = logo;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

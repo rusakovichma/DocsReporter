@@ -20,4 +20,6 @@ import java.lang.annotation.Target;
 public @interface TextStyling {
 
     public SyntaxKind syntaxKind();
+    
+    public boolean syntaxWithDirective() default false;
 }
