@@ -215,7 +215,6 @@ public class DocContextProcessorTest {
                 Object arg1 = invocation.getArguments()[1];
 
                 assertNotNull(arg0);
-                assertNotNull(arg1);
 
                 if (arg1 instanceof ByteArrayImageProvider) {
                     ByteArrayImageProvider prov = (ByteArrayImageProvider) arg1;

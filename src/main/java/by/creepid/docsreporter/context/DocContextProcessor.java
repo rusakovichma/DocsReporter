@@ -79,6 +79,8 @@ public class DocContextProcessor implements ContextProcessor {
     private void processImage(String imageMark, byte[] image, Annotation imageAnnotatioin) {
 
         if (!imageConverter.isImage(image) || !imageConverter.isSupportedImageType(image)) {
+            
+            context.put(imageMark, image);
             return;
         }
 
@@ -241,5 +243,5 @@ public class DocContextProcessor implements ContextProcessor {
     public void setImageConverter(ImageConverter imageConverter) {
         this.imageConverter = imageConverter;
     }
-
-    }
+    
+}
