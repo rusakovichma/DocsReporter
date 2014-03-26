@@ -16,7 +16,7 @@
     <properties>
         <github.global.server>github</github.global.server>
         
-        <xdocreport.version>1.0.3</xdocreport.version>
+        <xdocreport.version>1.0.4</xdocreport.version>
         <maven.test.failure.ignore>true</maven.test.failure.ignore>
         <spring.framework.version>3.0.6.RELEASE</spring.framework.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -106,7 +106,7 @@
             <artifactId>fr.opensagres.xdocreport.template.freemarker</artifactId>
             <version>${xdocreport.version}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity</artifactId>
