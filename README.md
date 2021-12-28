@@ -3,7 +3,7 @@
 Documents generation system in docx, odt, pdf, xhtml and pptx formats based on templates.<br/>
 Supported template formats: **.docx**, **.odt** and **.pptx**<br/>
 
-## Using
+## Usage
 
  * Add **repository** in pom.xml:
     ```xml
