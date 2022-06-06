@@ -30,7 +30,7 @@ Supported template formats: **.docx**, **.odt** and **.pptx**<br/>
 	<import resource="classpath*:META-INF/spring/docsreporter-context.xml" />
 	```
 4. Create report template and map object fields to the model via [Mergefields](https://kb.blackbaud.com/knowledgebase/Article/97378):
-![DocxProjectWithVelocity.docx document template]([pictures/image.png](https://raw.githubusercontent.com/rusakovichma/DocsReporter/59f0225dbad2444d94cd1261cd1a0a9e12399b2f/document-template.png))
+![DocxProjectWithVelocity.docx document template](https://raw.githubusercontent.com/rusakovichma/DocsReporter/59f0225dbad2444d94cd1261cd1a0a9e12399b2f/document-template.png)
 5. Define **reportTemplate** bean instance in Spring context:
 	```xml
 	<bean id="reportTemplate" parent="reportTemplateBase">
