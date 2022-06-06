@@ -5,7 +5,7 @@ Supported template formats: **.docx**, **.odt** and **.pptx**<br/>
 
 ## Usage
 
- * Add **repository** in pom.xml:
+1. Add **repository** in pom.xml:
     ```xml
     <repository>
         <id>DocsReporter-mvn-repo</id>
@@ -17,7 +17,7 @@ Supported template formats: **.docx**, **.odt** and **.pptx**<br/>
     </repository>
     ```
     
- *  Add **dependency**:
+2.  Add **dependency**:
     ```xml
     <dependency>
 		<groupId>by.creepid</groupId>
@@ -25,11 +25,13 @@ Supported template formats: **.docx**, **.odt** and **.pptx**<br/>
 		<version>0.0.1-SNAPSHOT</version>
 	</dependency>
 	```
- * Then add in context of a Spring application:
+3. Then add in context of a Spring application:
 	```xml
 	<import resource="classpath*:META-INF/spring/docsreporter-context.xml" />
 	```
- * Define **reportTemplate** instance:
+4. Create report template and map object fields to the model via [Mergefields](https://kb.blackbaud.com/knowledgebase/Article/97378):
+![DocxProjectWithVelocity.docx document template]([pictures/image.png](https://raw.githubusercontent.com/rusakovichma/DocsReporter/59f0225dbad2444d94cd1261cd1a0a9e12399b2f/document-template.png))
+5. Define **reportTemplate** bean instance in Spring context:
 	```xml
 	<bean id="reportTemplate" parent="reportTemplateBase">
         <property name="templatePath">
@@ -45,7 +47,7 @@ Supported template formats: **.docx**, **.odt** and **.pptx**<br/>
 	**modelClass** - model class (deep hierarchy is possible)<br/>
 	**modelName** - context of the model in the template<br/>
 
- * In source code:
+6. In source code generate the document based on the given template:
 ```java
 @Autowire
 private ReportTemplate reportTemplate;
@@ -66,8 +68,7 @@ ImageExtractObserver observer = new ImageExtractObserver() {
 //choosing output document format (.docx, .odt, .pptx, .pdf, .xhtml available)
 DocFormat outFormat = DocFormat.PDF;
 
-//receive processed document and saving it to file, response wrapper, etc.
+//receive the resulting document content and save it to file, response wrapper, etc.
 OutputStream out = reportTemplate.generateReport(outFormat, project, observer);
 
 ```
-   
